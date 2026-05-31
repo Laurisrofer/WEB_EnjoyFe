@@ -1,0 +1,47 @@
+/* ESTILOS DE LA PÁGINA DE AJUSTES */
+.contenedor-ajustes { padding: 40px; display: flex; justify-content: center; }
+.tarjeta-ajustes { background: var(--card-bg); width: 100%; max-width: 650px; border-radius: 10px; box-shadow: 0 4px 15px var(--shadow-color); padding: 30px; border: 1px solid var(--border-color); transition: background-color 0.3s, border-color 0.3s; }
+.tarjeta-ajustes h2 { margin-top: 0; color: var(--text-color); margin-bottom: 10px; }
+.seccion-titulo { color: var(--text-color); font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: bold; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+.select-fontsize { width: 100%; padding: 12px; background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 5px; font-size: 1em; outline: none; transition: border-color 0.3s, background-color 0.3s; }
+.select-fontsize:focus { border-color: var(--primary-color); }
+.grupo-ajustes { margin-bottom: 35px; }
+.log-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.log-table th, .log-table td { padding: 12px; text-align: left; font-size: 0.9em; }
+
+/* Clases para eliminar estilos inline */
+.ajustes-desc {
+    color: var(--text-muted);
+    margin-bottom: 30px;
+}
+.form-group-spaced {
+    margin-top: 20px;
+}
+.grupo-ajustes label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.log-help {
+    color: var(--text-muted);
+    font-size: 0.85em;
+    margin: 0;
+}
+.log-table th {
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-color);
+}
+.log-table td {
+    border-bottom: 1px solid var(--border-color);
+}
+.log-table td.ip-address {
+    font-family: monospace;
+}
+.log-status-active {
+    font-weight: bold;
+    color: var(--success-color);
+}
+.log-status-inactive {
+    font-weight: bold;
+    color: var(--text-muted);
+}

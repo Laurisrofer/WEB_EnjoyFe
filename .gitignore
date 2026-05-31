@@ -1,0 +1,23 @@
+# Python virtual environment
+backend/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Uploads (archivos subidos por usuarios)
+uploads/
+
+# Logs
+*.log
+
+# Temp files
+header_view.txt

@@ -1,0 +1,41 @@
+/* ESTILOS DE LA PÁGINA DE LOGIN */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.login-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+}
+h1 { color: #2c3e50; margin-bottom: 30px; font-size: 24px; }
+.form-group { margin-bottom: 20px; text-align: left; }
+label { display: block; margin-bottom: 5px; color: #7f8c8d; font-size: 14px; }
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+    box-sizing: border-box; /* Evita que el input se salga de la caja */
+}
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+button:hover { background-color: #2980b9; }

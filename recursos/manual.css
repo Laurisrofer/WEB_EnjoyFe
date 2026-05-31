@@ -1,0 +1,35 @@
+/* ESTILOS DE LA PÁGINA DEL MANUAL DE USUARIO */
+.manual-layout { display: flex; min-height: 100vh; background-color: var(--bg-color); }
+.manual-nav { width: 280px; background: var(--card-bg); border-right: 1px solid var(--border-color); padding: 30px 20px; position: sticky; top: 0; height: 100vh; box-sizing: border-box; overflow-y: auto; }
+.manual-nav h3 { margin-top: 0; color: var(--text-color); font-size: 1.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+.manual-nav a { display: block; padding: 10px 12px; color: var(--text-muted); text-decoration: none; border-radius: 6px; font-size: 0.95em; transition: all 0.2s; margin-bottom: 5px; }
+.manual-nav a:hover, .manual-nav a.active { background: var(--bg-color); color: var(--primary-color); font-weight: bold; }
+
+.manual-content { flex: 1; padding: 50px 60px; max-width: 900px; box-sizing: border-box; }
+.manual-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border-color); padding-bottom: 20px; margin-bottom: 40px; }
+.manual-title h1 { margin: 0; color: var(--text-color); font-size: 2.2em; }
+.manual-title p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 1.1em; }
+
+.btn-print { background-color: var(--primary-color); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s; font-size: 0.95em; }
+.btn-print:hover { background-color: var(--primary-hover); }
+
+.section-block { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 35px; margin-bottom: 40px; box-shadow: 0 4px 6px var(--shadow-color); scroll-margin-top: 40px; }
+.section-block h2 { margin-top: 0; color: var(--text-color); font-size: 1.6em; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; }
+.section-block h3 { color: var(--text-color); font-size: 1.25em; margin-top: 25px; margin-bottom: 12px; }
+.section-block p, .section-block li { line-height: 1.7; color: var(--text-muted); font-size: 1em; }
+.section-block ul, .section-block ol { padding-left: 20px; margin-bottom: 20px; }
+.section-block li { margin-bottom: 8px; }
+
+.highlight-box { background: var(--bg-color); border-left: 4px solid var(--primary-color); padding: 18px 22px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+.highlight-box p { margin: 0; color: var(--text-color); font-weight: 500; }
+
+/* Estilos de Impresión */
+@media print {
+    body { background: white; color: black; font-size: 12pt; }
+    .manual-nav, .btn-print, .sidebar, .header { display: none !important; }
+    .manual-layout { display: block; }
+    .manual-content { padding: 0; max-width: 100%; }
+    .section-block { border: none; box-shadow: none; padding: 0; margin-bottom: 50px; page-break-inside: avoid; }
+    .section-block h2 { border-bottom: 2px solid #000; color: black; }
+    .highlight-box { border-left-color: #000; background: #f8f9fa; }
+}

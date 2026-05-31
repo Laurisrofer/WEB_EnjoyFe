@@ -1,0 +1,372 @@
+/* Estilos específicos para el Módulo de Calificaciones (Notas) */
+
+.contenedor-datos {
+    padding: 30px;
+}
+
+.card-resumen {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    margin-bottom: 25px;
+}
+
+.card-resumen h2 {
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+.boletin-subtitulo {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Cabecera simulada de tabla de alumnos */
+.tabla-cabecera-alumno {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1.2fr 60px;
+    padding: 10px 25px;
+    font-weight: bold;
+    color: var(--text-muted);
+    font-size: 0.85em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 10px;
+}
+
+/* Tabs Navegación */
+.tab-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.tab-link {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 5px;
+    font-size: 0.95em;
+}
+
+.tab-link:hover {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.tab-link.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Acordeón Alumno */
+.asig-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.asig-row {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: border-color 0.3s;
+}
+
+.asig-summary {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr 1.2fr 60px;
+    align-items: center;
+    padding: 18px 25px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.asig-summary:hover {
+    background-color: var(--bg-color);
+}
+
+.asig-summary h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+
+.profesor-subtexto {
+    font-weight: normal;
+    font-size: 0.75em;
+    color: var(--text-muted);
+}
+
+.eval-col {
+    text-align: center;
+}
+
+.final-col {
+    text-align: center;
+    font-size: 1.15em;
+    color: var(--primary-color);
+}
+
+.obs-col {
+    text-align: center;
+}
+
+.arrow-col {
+    text-align: right;
+    color: var(--text-muted);
+    font-size: 1.2em;
+    transition: transform 0.3s;
+}
+
+.asig-row.open .arrow-col {
+    transform: rotate(180deg);
+}
+
+.asig-details {
+    display: none;
+    padding: 25px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+}
+
+.asig-row.open .asig-details {
+    display: block;
+}
+
+.desglose-container h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+/* Subtablas de notas */
+.subtable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.subtable th, .subtable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.subtable th {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.subtable tr:hover {
+    background-color: var(--bg-color);
+}
+
+.subtable tr:last-child td {
+    border-bottom: none;
+}
+
+/* Vista Profesor/Admin */
+.selector-box {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.selector-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.selector-item label {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: var(--text-color);
+}
+
+.selector-item select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+}
+
+.selector-item select:focus {
+    border-color: var(--primary-color);
+}
+
+.view-container {
+    display: none;
+}
+
+.view-container.active {
+    display: block;
+}
+
+.student-select-list {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.student-bubble {
+    padding: 8px 16px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: bold;
+    transition: all 0.2s;
+    color: var(--text-color);
+}
+
+.student-bubble:hover {
+    background-color: var(--bg-color);
+}
+
+.student-bubble.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.form-box {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px var(--shadow-color);
+    margin-bottom: 25px;
+    color: var(--text-color);
+}
+
+.form-box h3 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+/* Layout del espacio de trabajo del profesor */
+.workspace-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.workspace-main {
+    flex: 1.3;
+    min-width: 320px;
+}
+
+.workspace-sidebar {
+    flex: 1;
+    min-width: 300px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.form-col {
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-col label {
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+
+.form-col input, .form-col select, .form-col textarea {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+}
+
+.form-col input:focus, .form-col select:focus, .form-col textarea:focus {
+    border-color: var(--primary-color);
+}
+
+.btn-action {
+    padding: 11px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 0.95em;
+}
+
+.btn-action:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+.feedback-bubble {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95em;
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: underline;
+    padding: 0;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-style: italic;
+}

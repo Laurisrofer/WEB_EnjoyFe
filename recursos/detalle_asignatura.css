@@ -1,0 +1,21 @@
+/* ESTILOS DE LA PÁGINA DE DETALLE DE ASIGNATURA */
+.contenedor-datos { padding: 30px; }
+.btn-volver { display: inline-block; margin-bottom: 20px; color: #34495e; text-decoration: none; font-weight: bold; transition: color 0.3s; }
+.btn-volver:hover { color: var(--primary-color); }
+.cabecera-asignatura { background: var(--card-bg); padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 5px var(--shadow-color); margin-bottom: 20px; border: 1px solid var(--border-color); }
+.cabecera-asignatura h2 { margin: 0 0 10px 0; color: var(--text-color); font-size: 2em; }
+.cabecera-asignatura p { margin: 0; color: var(--text-muted); font-size: 1.2em; }
+.tab-container { background: var(--card-bg); border-radius: 8px; box-shadow: 0 2px 5px var(--shadow-color); overflow: hidden; border: 1px solid var(--border-color); }
+.tabs { display: flex; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); }
+.tab-button { background-color: inherit; border: none; outline: none; cursor: pointer; padding: 14px 20px; transition: 0.3s; font-size: 16px; font-weight: bold; color: var(--text-muted); flex: 1; }
+.tab-button:hover { background-color: var(--border-color); }
+.tab-button.active { background-color: var(--card-bg); color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
+.tab-content { padding: 30px; display: none; line-height: 1.6; color: var(--text-color); }
+.tab-content.active { display: block; }
+.tab-content h4 { color: var(--text-color); margin-top: 20px; margin-bottom: 10px; font-size: 1.15em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+.tab-content ul { padding-left: 20px; margin-bottom: 20px; }
+.tab-content li { margin-bottom: 6px; }
+.recurso-link { display: block; padding: 15px; background: var(--bg-color); margin-bottom: 10px; border-radius: 5px; text-decoration: none; color: var(--text-color); font-weight: bold; border-left: 4px solid var(--primary-color); transition: background 0.3s; }
+.recurso-link:hover { background: var(--border-color); }
+.seccion-recursos { margin-bottom: 30px; }
+.estado-error { background: var(--card-bg); padding: 40px; text-align: center; border-radius: 8px; box-shadow: 0 2px 5px var(--shadow-color); color: var(--danger-color); border: 1px solid var(--border-color); }

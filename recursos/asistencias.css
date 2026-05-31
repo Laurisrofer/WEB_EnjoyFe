@@ -1,0 +1,403 @@
+/* Estilos específicos para el Módulo de Control de Asistencia */
+
+.contenedor-datos {
+    padding: 30px;
+}
+
+.card-resumen {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    margin-bottom: 25px;
+}
+
+.card-resumen h2 {
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+.asistencia-subtitulo {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.historial-titulo {
+    color: var(--text-color);
+    margin-bottom: 15px;
+}
+
+/* Contenedor de Estadísticas */
+.contenedor-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    color: var(--text-muted);
+}
+
+.stat-value {
+    font-size: 2.2em;
+    font-weight: bold;
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-warning {
+    color: #ffc107;
+}
+
+.text-success {
+    color: #198754;
+}
+
+.text-info {
+    color: #0dcaf0;
+}
+
+/* Tabs Navegación */
+.tab-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.tab-link {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 5px;
+    font-size: 0.95em;
+}
+
+.tab-link:hover {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.tab-link.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Selector box */
+.selector-box {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.selector-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.selector-item label {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: var(--text-color);
+}
+
+.selector-item select, .selector-item input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+}
+
+.selector-item select:focus, .selector-item input:focus {
+    border-color: var(--primary-color);
+}
+
+.view-container {
+    display: none;
+}
+
+.view-container.active {
+    display: block;
+}
+
+/* Listados de asistencia */
+.tabla-asistencias {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    margin-top: 15px;
+}
+
+.tabla-asistencias th, .tabla-asistencias td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tabla-asistencias th {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-asistencias tr:hover {
+    background-color: var(--bg-color);
+}
+
+.tabla-asistencias tr:last-child td {
+    border-bottom: none;
+}
+
+/* Cabecera del panel de pase de lista */
+.asistencia-bar-cabecera {
+    margin-bottom: 15px;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.asistencia-details-title {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.asistencia-actions-bar {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botones de acción de asistencia */
+.btn-group-attendance {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-attendance {
+    padding: 7px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.btn-attendance.active-present {
+    background-color: #198754;
+    color: white;
+    border-color: #198754;
+}
+
+.btn-attendance.active-falta {
+    background-color: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+.btn-attendance.active-retraso {
+    background-color: #ffc107;
+    color: black;
+    border-color: #ffc107;
+}
+
+.btn-action {
+    padding: 11px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 0.95em;
+}
+
+.btn-action:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-action.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-action.btn-danger:hover {
+    opacity: 0.9;
+}
+
+.btn-link-table {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: underline;
+    padding: 0;
+}
+
+.justificacion-obs-lbl {
+    font-size: 0.85em;
+    color: var(--text-muted);
+}
+
+/* Campos de entrada del profesor */
+.input-obs-asistencia-field {
+    width: 100%;
+    max-width: 400px;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    box-sizing: border-box;
+}
+
+.label-just-asistencia {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85em;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Badges de estados */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-falta {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: var(--danger-color);
+}
+
+.badge-retraso {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #b58900;
+}
+
+.badge-justificada {
+    background-color: rgba(25, 135, 84, 0.15);
+    color: #198754;
+}
+
+.badge-pendiente {
+    background-color: rgba(13, 202, 240, 0.15);
+    color: #0aa2c0;
+}
+
+/* Modal de justificaciones */
+.modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 25px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    color: var(--text-color);
+}
+
+.modal-card h3 {
+    margin-top: 0;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.modal-card p {
+    margin-top: 0;
+    font-size: 0.9em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.modal-card textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+    margin-bottom: 20px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.modal-card textarea:focus {
+    border-color: var(--primary-color);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-style: italic;
+}

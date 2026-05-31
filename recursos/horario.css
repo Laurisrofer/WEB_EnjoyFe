@@ -1,0 +1,53 @@
+/* ESTILOS DE LA PÁGINA DEL HORARIO */
+.contenedor-horario { padding: 40px; }
+.tarjeta-horario { background: var(--card-bg); border-radius: 10px; box-shadow: 0 4px 15px var(--shadow-color); padding: 30px; border: 1px solid var(--border-color); transition: background-color 0.3s, border-color 0.3s; }
+.horario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+.horario-titulo { margin: 0; font-size: 1.6em; color: var(--text-color); }
+
+/* Selector de Curso para Admin */
+.selector-container { display: flex; align-items: center; gap: 10px; }
+.selector-container label { font-weight: bold; color: var(--text-color); }
+.select-curso { padding: 8px 12px; border-radius: 5px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); font-size: 0.95em; outline: none; transition: border-color 0.3s; }
+.select-curso:focus { border-color: var(--primary-color); }
+
+/* Grid del Horario Semanal */
+.horario-grid { display: grid; grid-template-columns: 120px repeat(5, 1fr); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--card-bg); transition: border-color 0.3s; }
+
+/* Celdas comunes */
+.grid-cell { padding: 12px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 85px; text-align: center; box-sizing: border-box; }
+.grid-cell:nth-child(6n) { border-right: none; } /* Quita borde derecho a la última celda de cada fila normal */
+
+/* Cabeceras de columnas */
+.grid-header { background-color: var(--sidebar-bg); color: var(--sidebar-text); font-weight: bold; text-align: center; text-transform: uppercase; font-size: 0.85em; min-height: 50px; border-bottom: 2px solid var(--border-color); letter-spacing: 1px; }
+
+/* Columna de Horas */
+.grid-time { font-weight: bold; color: var(--text-color); background-color: var(--bg-color); border-right: 2px solid var(--border-color) !important; font-size: 0.85em; }
+.time-slot { display: block; font-size: 1.1em; }
+.time-range { display: block; font-size: 0.8em; color: var(--text-muted); margin-top: 3px; }
+
+/* Recreo Cruzado */
+.recreo-row { grid-column: span 6; background-color: var(--bg-color); color: var(--text-muted); font-weight: bold; font-size: 1.05em; letter-spacing: 3px; text-align: center; padding: 14px; border-bottom: 1px solid var(--border-color); border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Tarjetas de Asignatura */
+.asig-card { width: 100%; height: 100%; border-radius: 6px; padding: 8px 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; box-shadow: 0 2px 4px var(--shadow-color); transition: transform 0.2s, box-shadow 0.2s; }
+.asig-card:hover { transform: scale(1.02); box-shadow: 0 4px 8px var(--shadow-color); }
+.asig-name { font-weight: bold; font-size: 0.85em; margin-bottom: 4px; line-height: 1.25; }
+.asig-prof { font-size: 0.72em; opacity: 0.85; font-weight: 500; }
+.asig-curso { font-size: 0.68em; font-style: italic; margin-top: 3px; opacity: 0.75; }
+
+/* Clases para eliminar estilos inline */
+.horario-cargando {
+    grid-column: span 6;
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+.horario-error {
+    grid-column: span 6;
+    text-align: center;
+    padding: 40px;
+    color: var(--danger-color);
+}
+.border-bottom-none {
+    border-bottom: none !important;
+}
