@@ -11,15 +11,10 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 if ($action === 'obtener') {
     // Obtener bandeja de entrada
-    $url = "http://127.0.0.1:5000/mensajes";
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $_SESSION['token']
-    ]);
-    $res = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    require_once '../componentes/api_client.php';
+    $__res = llamar_api("/mensajes");
+    $res = $__res['respuesta'];
+    $code = $__res['http_code'];
     
     http_response_code($code);
     header('Content-Type: application/json');
@@ -28,15 +23,10 @@ if ($action === 'obtener') {
 
 } elseif ($action === 'contactos') {
     // Obtener lista de usuarios para la agenda/buscador
-    $url = "http://127.0.0.1:5000/usuarios/contactos";
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $_SESSION['token']
-    ]);
-    $res = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    require_once '../componentes/api_client.php';
+    $__res = llamar_api("/usuarios/contactos");
+    $res = $__res['respuesta'];
+    $code = $__res['http_code'];
     
     http_response_code($code);
     header('Content-Type: application/json');

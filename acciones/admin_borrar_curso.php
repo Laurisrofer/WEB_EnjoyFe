@@ -7,18 +7,10 @@ if (!isset($_SESSION['token']) || $_SESSION['rol'] !== 'admin' || !isset($_GET['
 
 $id = $_GET['id'];
 
-$url = "http://127.0.0.1:5000/cursos/" . $id;
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . $_SESSION['token'],
-    'Content-Type: application/json'
-]);
-
-$respuesta = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+require_once '../componentes/api_client.php';
+    $__res = llamar_api("/cursos/" . $id, "DELETE");
+    $respuesta = $__res['respuesta'];
+    $http_code = $__res['http_code'];
 
 $resp_data = json_decode($respuesta, true);
 

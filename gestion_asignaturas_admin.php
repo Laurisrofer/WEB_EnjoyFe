@@ -254,7 +254,7 @@ include 'componentes/header.php';
                 recursosAdmin.forEach((r, idx) => {
                     const div = document.createElement('div');
                     div.style = "display:flex; justify-content:space-between; align-items:center; background:var(--input-bg); border:1px solid var(--border-color); padding:5px 10px; border-radius:4px; font-size:0.9em;";
-                    div.innerHTML = `<span><a href="${r.url}" target="_blank" style="color:var(--primary-color); text-decoration:none;">${r.titulo}</a></span> <button type="button" class="btn-icon" style="color:var(--danger-color); font-size:12px;" onclick="eliminarRecursoAdmin(${idx})">❌</button>`;
+                    div.innerHTML = `<span><a href="${escapeHtml(r.url)}" target="_blank" style="color:var(--primary-color); text-decoration:none;">${escapeHtml(r.titulo)}</a></span> <button type="button" class="btn-icon" style="color:var(--danger-color); font-size:12px;" onclick="eliminarRecursoAdmin(${idx})">❌</button>`;
                     container.appendChild(div);
                 });
             }

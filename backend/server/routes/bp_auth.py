@@ -2,13 +2,10 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
 from repositories.usuario_repo import UsuarioRepository
 from werkzeug.security import check_password_hash
-import hashlib
 
 bp_auth = Blueprint('bp_auth', __name__)
 
-def encriptar(texto):
-    """Encripta la contraseña para compararla con la de la BD"""
-    return hashlib.sha256(texto.encode()).hexdigest()
+
 
 @bp_auth.route('/login', methods=['POST'])
 def login():
@@ -33,15 +30,7 @@ def login():
     # Validamos usando el hashing scrypt de werkzeug
     contrasena_valida = check_password_hash(hash_en_bd, contrasena_req)
     
-    # Fallbacks de compatibilidad por si acaso hay contraseñas antiguas
-    if not contrasena_valida:
-        hash_calculado = encriptar(contrasena_req)
-        if hash_en_bd == hash_calculado:
-            contrasena_valida = True
-        elif hash_en_bd == contrasena_req:
-            contrasena_valida = True
-        elif contrasena_req == "1234" and hash_en_bd == "iVTj8rY9kraqp7TM48OIhA==":
-            contrasena_valida = True
+
 
     if not contrasena_valida:
         return jsonify(mensaje="Usuario o contraseña incorrectos"), 401

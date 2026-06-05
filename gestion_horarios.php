@@ -167,7 +167,7 @@ include 'componentes/header.php';
             if (data.rol === 'profesor') {
                 document.getElementById('horario_grupo_nombre').innerHTML = "Mi horario docente";
             } else {
-                document.getElementById('horario_grupo_nombre').innerHTML = `Horario - ${data.curso_nombre} <span style="font-size: 0.6em; color: var(--text-muted); margin-left: 15px; font-weight: normal; vertical-align: middle;">Tutor: <strong>${data.tutor_nombre || 'Sin asignar'}</strong></span>`;
+                document.getElementById('horario_grupo_nombre').innerHTML = `Horario - ${escapeHtml(data.curso_nombre)} <span style="font-size: 0.6em; color: var(--text-muted); margin-left: 15px; font-weight: normal; vertical-align: middle;">Tutor: <strong>${escapeHtml(data.tutor_nombre || 'Sin asignar')}</strong></span>`;
             }
 
             // Comenzar a pintar la rejilla
@@ -221,12 +221,12 @@ include 'componentes/header.php';
                             const style = getSubjectStyle(match);
                             // Si es profesor, además del nombre de asignatura enseñamos a qué curso pertenece
                             const detailSubtext = data.rol === 'profesor' 
-                                ? `<span class="asig-curso">${match.curso}</span>` 
-                                : `<span class="asig-prof">${match.profesor}</span>`;
+                                ? `<span class="asig-curso">${escapeHtml(match.curso)}</span>` 
+                                : `<span class="asig-prof">${escapeHtml(match.profesor)}</span>`;
 
                             dayCell.innerHTML = `
                                 <div class="asig-card" style="${style}">
-                                    <div class="asig-name">${match.asignatura}</div>
+                                    <div class="asig-name">${escapeHtml(match.asignatura)}</div>
                                     ${detailSubtext}
                                 </div>
                             `;
@@ -272,7 +272,7 @@ include 'componentes/header.php';
 
                     return `
                     <div class="color-item" style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom: 25px; border-bottom:1px solid var(--border-color); padding-bottom:15px; width: 100%;">
-                        <span style="font-weight:bold; margin-bottom:10px; width:100%; word-wrap:break-word;">${a.nombre}</span>
+                        <span style="font-weight:bold; margin-bottom:10px; width:100%; word-wrap:break-word;">${escapeHtml(a.nombre)}</span>
                         <div style="display:flex; flex-wrap:wrap; gap:6px; width:100%;">
                             ${paletteHtml}
                         </div>

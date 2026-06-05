@@ -167,7 +167,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
             if(overlay) overlay.classList.toggle('show');
         }
 
-        const CURRENT_USER = '<?php echo $_SESSION["nombre_usuario"] ?? "default"; ?>';
+        const CURRENT_USER = '<?php echo htmlspecialchars($_SESSION["nombre_usuario"] ?? "default", ENT_QUOTES, "UTF-8"); ?>';
         const getLocalKey = (baseKey) => baseKey + '_' + CURRENT_USER;
 
         let notificationsCache = {

@@ -65,13 +65,28 @@ class UsuarioRepository:
                 
             # Impedir eliminación si tiene asignaturas asignadas
             if usuario.rol == 'alumno':
-                matriculas = Matricula.query.filter_by(id_usuario=id_usuario).count()
+                matriculas = Matricula.query.filter_by(id_alumno=id_usuario).count()
                 if matriculas > 0:
                     return False # Tiene asignaturas asignadas
             elif usuario.rol == 'profesor':
                 asignaturas = Asignatura.query.filter_by(id_profesor=id_usuario).count()
                 if asignaturas > 0:
                     return False # Tiene asignaturas asignadas
+            
+            # Borrado en cascada manual para no violar integridad referencial
+            from models.Mensaje import Mensaje
+            from models.Evento import Evento
+            from models.Asistencia import Asistencia
+            
+            # 1. Borrar todos los mensajes enviados o recibidos
+            Mensaje.query.filter((Mensaje.id_remitente == id_usuario) | (Mensaje.id_destinatario == id_usuario)).delete()
+            
+            # 2. Borrar eventos creados por el usuario
+            Evento.query.filter_by(id_usuario=id_usuario).delete()
+            
+            # 3. Borrar asistencias asociadas si es alumno
+            if usuario.rol == 'alumno':
+                Asistencia.query.filter_by(id_alumno=id_usuario).delete()
                     
             db.session.delete(usuario)
             db.session.commit()

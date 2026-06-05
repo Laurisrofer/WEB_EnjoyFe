@@ -2,15 +2,10 @@ from flask import Blueprint, jsonify, request
 from models import Usuario # Importamos el modelo
 from repositories.usuario_repo import UsuarioRepository # Importamos el repositorio
 from auth import requerir_rol
-import hashlib
+from werkzeug.security import generate_password_hash
 from datetime import datetime
 
 bp_usuarios = Blueprint('bp_usuarios', __name__)
-
-def encriptar(texto):
-    # Asegúrate de que este hash coincida con el que generaste en MySQL
-    # Si en MySQL usaste SHA256, esto está bien.
-    return hashlib.sha256(texto.encode()).hexdigest()
 
 # 1. LISTAR (Usando Repositorio)
 @bp_usuarios.route('', methods=['GET'])
@@ -42,7 +37,15 @@ def obtener_contactos():
 @requerir_rol('admin')
 def crear_usuario():
     datos = request.get_json()
-    
+    # Validar campos obligatorios
+    if not datos.get('nombre_usuario') or not datos.get('contrasena') or not datos.get('nombre_completo'):
+        return jsonify(mensaje="Faltan campos obligatorios"), 400
+
+    # Validar rol
+    rol = datos.get('rol', 'alumno')
+    if rol not in ['admin', 'profesor', 'alumno']:
+        return jsonify(mensaje="Rol inválido"), 400
+        
     # Validación con repositorio
     if UsuarioRepository.obtener_por_nombre_usuario(datos['nombre_usuario']):
         return jsonify(mensaje="El usuario ya existe"), 400
@@ -50,10 +53,10 @@ def crear_usuario():
     # Creamos objeto Modelo (NO diccionario)
     nuevo = Usuario(
         nombre_usuario=datos['nombre_usuario'], # type: ignore
-        password_hash=encriptar(datos['contrasena']), # type: ignore
+        password_hash=generate_password_hash(datos['contrasena']), # type: ignore
         nombre_completo=datos['nombre_completo'], # type: ignore
         email=datos.get('email', ''), # type: ignore
-        rol=datos.get('rol', 'alumno'), # type: ignore
+        rol=rol, # type: ignore
         dni=datos.get('dni') # type: ignore
     )
     

@@ -11,7 +11,14 @@ from models.Evento import Evento
 # podrías tener errores al arrancar.
 from routes.bp_usuarios import bp_usuarios
 from routes.bp_cursos import bp_cursos
-from routes.bp_academico import bp_academico
+from routes.academico.bp_dashboard import bp_dashboard
+from routes.academico.bp_asignaturas import bp_asignaturas
+from routes.academico.bp_eventos import bp_eventos
+from routes.academico.bp_perfil import bp_perfil
+from routes.academico.bp_notas import bp_notas
+from routes.academico.bp_asistencias import bp_asistencias
+from routes.academico.bp_horarios import bp_horarios
+from routes.academico.bp_aulas import bp_aulas
 from routes.bp_mensajes import bp_mensajes
 from routes.bp_auth import bp_auth
 
@@ -28,7 +35,14 @@ jwt = JWTManager(app)
 app.register_blueprint(bp_auth, url_prefix='/auth')
 app.register_blueprint(bp_usuarios, url_prefix='/usuarios')
 app.register_blueprint(bp_cursos, url_prefix='/cursos')
-app.register_blueprint(bp_academico, url_prefix='/academico')
+app.register_blueprint(bp_dashboard, url_prefix='/academico')
+app.register_blueprint(bp_asignaturas, url_prefix='/academico')
+app.register_blueprint(bp_eventos, url_prefix='/academico')
+app.register_blueprint(bp_perfil, url_prefix='/academico')
+app.register_blueprint(bp_notas, url_prefix='/academico')
+app.register_blueprint(bp_asistencias, url_prefix='/academico')
+app.register_blueprint(bp_horarios, url_prefix='/academico')
+app.register_blueprint(bp_aulas, url_prefix='/academico')
 app.register_blueprint(bp_mensajes, url_prefix='/mensajes')
 
 # --- RUTA DE PRUEBA ---
