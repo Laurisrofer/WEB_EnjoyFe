@@ -32,3 +32,51 @@ class UsuarioRepository:
         # Guardamos los cambios
         db.session.commit()
         return True, "Contraseña actualizada correctamente"
+
+    @staticmethod
+    def crear(usuario):
+        try:
+            db.session.add(usuario)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error al crear usuario: {e}")
+            return False
+
+    @staticmethod
+    def actualizar(usuario):
+        try:
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error al actualizar usuario: {e}")
+            return False
+
+    @staticmethod
+    def eliminar(id_usuario):
+        try:
+            from models.Matricula import Matricula
+            from models.Asignatura import Asignatura
+            usuario = Usuario.query.get(id_usuario)
+            if not usuario:
+                return False
+                
+            # Impedir eliminación si tiene asignaturas asignadas
+            if usuario.rol == 'alumno':
+                matriculas = Matricula.query.filter_by(id_usuario=id_usuario).count()
+                if matriculas > 0:
+                    return False # Tiene asignaturas asignadas
+            elif usuario.rol == 'profesor':
+                asignaturas = Asignatura.query.filter_by(id_profesor=id_usuario).count()
+                if asignaturas > 0:
+                    return False # Tiene asignaturas asignadas
+                    
+            db.session.delete(usuario)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error al eliminar usuario: {e}")
+            return False

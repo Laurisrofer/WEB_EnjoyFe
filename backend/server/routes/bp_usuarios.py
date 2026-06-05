@@ -53,7 +53,8 @@ def crear_usuario():
         password_hash=encriptar(datos['contrasena']), # type: ignore
         nombre_completo=datos['nombre_completo'], # type: ignore
         email=datos.get('email', ''), # type: ignore
-        rol=datos.get('rol', 'alumno') # type: ignore
+        rol=datos.get('rol', 'alumno'), # type: ignore
+        dni=datos.get('dni') # type: ignore
     )
     
     # Guardamos con repositorio
@@ -84,6 +85,9 @@ def modificar_usuario(id_usuario):
     if 'rol' in datos:
         usuario.rol = datos['rol']
         
+    if 'dni' in datos:
+        usuario.dni = datos['dni']
+        
     # Si viene contraseña nueva y no está vacía, la encriptamos
     if 'contrasena' in datos and datos['contrasena'].strip() != "":
         usuario.password_hash = encriptar(datos['contrasena'])
@@ -103,4 +107,4 @@ def borrar_usuario(id_usuario):
     if exito:
         return jsonify(mensaje="Usuario eliminado correctamente"), 200
     else:
-        return jsonify(mensaje="Usuario no encontrado o no se pudo eliminar"), 404
+        return jsonify(mensaje="No se pudo eliminar el usuario. Es posible que tenga asignaturas o cursos asignados, o que no exista."), 400

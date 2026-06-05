@@ -19,3 +19,16 @@ class Usuario(db.Model):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nombre_usuario': self.nombre_usuario,
+            'nombre_completo': self.nombre_completo,
+            'email': self.email,
+            'rol': self.rol,
+            'estado': self.estado,
+            'dni': self.dni,
+            'fecha_registro': self.fecha_registro.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_registro else None,
+            'fecha_ultimo_login': self.fecha_ultimo_login.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_ultimo_login else None
+        }

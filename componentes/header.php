@@ -47,12 +47,21 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
             <img src="recursos/logo_enjoyfe.png" alt="Enjoyfe" style="width:90%; max-width:200px; height:auto; background:white; border-radius:12px; padding:4px; object-fit:contain; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         </a>
         <a href="dashboard.php" class="<?php echo ($pagina_id == 'inicio') ? 'activo' : ''; ?>" style="margin-top: 10px;">Inicio</a>
-        <a href="horario.php" class="<?php echo ($pagina_id == 'horario') ? 'activo' : ''; ?>">Horario</a>
-        <a href="asignaturas.php" class="<?php echo ($pagina_id == 'asignaturas') ? 'activo' : ''; ?>">Asignaturas</a>
-        <a href="notas.php" class="<?php echo ($pagina_id == 'notas') ? 'activo' : ''; ?>">Notas</a>
-        <a href="asistencias.php" class="<?php echo ($pagina_id == 'asistencias') ? 'activo' : ''; ?>">Asistencias</a>
-        <a href="estadisticas.php" class="<?php echo ($pagina_id == 'estadisticas') ? 'activo' : ''; ?>">Estadísticas</a>
-        <a href="mensajeria.php" class="<?php echo ($pagina_id == 'mensajeria') ? 'activo' : ''; ?>">Mensajería</a>
+        <?php if ($rol_usuario === 'admin'): ?>
+            <a href="gestion_usuarios.php" class="<?php echo ($pagina_id == 'gestion_usuarios') ? 'activo' : ''; ?>">Gestión de usuarios</a>
+            <a href="gestion_cursos.php" class="<?php echo ($pagina_id == 'gestion_cursos') ? 'activo' : ''; ?>">Gestión de cursos</a>
+            <a href="gestion_asignaturas_admin.php" class="<?php echo ($pagina_id == 'gestion_asignaturas') ? 'activo' : ''; ?>">Gestión de asignaturas</a>
+            <a href="gestion_horarios.php" class="<?php echo ($pagina_id == 'gestion_horarios') ? 'activo' : ''; ?>">Gestión de horarios</a>
+            <a href="estadisticas.php" class="<?php echo ($pagina_id == 'estadisticas') ? 'activo' : ''; ?>">Estadísticas</a>
+            <a href="mensajeria.php" class="<?php echo ($pagina_id == 'mensajeria') ? 'activo' : ''; ?>">Mensajería</a>
+        <?php else: ?>
+            <a href="horario.php" class="<?php echo ($pagina_id == 'horario') ? 'activo' : ''; ?>">Horario</a>
+            <a href="asignaturas.php" class="<?php echo ($pagina_id == 'asignaturas') ? 'activo' : ''; ?>">Asignaturas</a>
+            <a href="notas.php" class="<?php echo ($pagina_id == 'notas') ? 'activo' : ''; ?>">Notas</a>
+            <a href="asistencias.php" class="<?php echo ($pagina_id == 'asistencias') ? 'activo' : ''; ?>">Asistencias</a>
+            <a href="estadisticas.php" class="<?php echo ($pagina_id == 'estadisticas') ? 'activo' : ''; ?>">Estadísticas</a>
+            <a href="mensajeria.php" class="<?php echo ($pagina_id == 'mensajeria') ? 'activo' : ''; ?>">Mensajería</a>
+        <?php endif; ?>
         
         <style>
             .social-icon { color: var(--sidebar-text); opacity: 0.6; transition: opacity 0.2s, transform 0.2s, color 0.2s; display: flex; align-items: center; }
@@ -158,6 +167,9 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
             if(overlay) overlay.classList.toggle('show');
         }
 
+        const CURRENT_USER = '<?php echo $_SESSION["nombre_usuario"] ?? "default"; ?>';
+        const getLocalKey = (baseKey) => baseKey + '_' + CURRENT_USER;
+
         let notificationsCache = {
             mensajes: [],
             calificaciones: [],
@@ -199,17 +211,17 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
 
         function marcarComoLeida(id, event) {
             if (event) event.stopPropagation();
-            let readNotifs = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+            let readNotifs = JSON.parse(localStorage.getItem(getLocalKey('read_notifications')) || '[]');
             if (!readNotifs.includes(id)) {
                 readNotifs.push(id);
-                localStorage.setItem('read_notifications', JSON.stringify(readNotifs));
+                localStorage.setItem(getLocalKey('read_notifications'), JSON.stringify(readNotifs));
                 checkNotifications();
             }
         }
 
         function marcarTodasLeidas(event) {
             if (event) event.stopPropagation();
-            let readNotifs = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+            let readNotifs = JSON.parse(localStorage.getItem(getLocalKey('read_notifications')) || '[]');
             
             if (notificationsCache) {
                 if (notificationsCache.mensajes) {
@@ -238,7 +250,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
                 }
             }
             
-            localStorage.setItem('read_notifications', JSON.stringify(readNotifs));
+            localStorage.setItem(getLocalKey('read_notifications'), JSON.stringify(readNotifs));
             checkNotifications();
         }
 
@@ -322,6 +334,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
             const notifNotesEnabled = localStorage.getItem('notif_notes') !== 'false';
             const notifMsgEnabled = localStorage.getItem('notif_msg') !== 'false';
             const notifAttendanceEnabled = localStorage.getItem('notif_attendance') !== 'false';
+            const notifAnunciosEnabled = localStorage.getItem('notif_anuncios') !== 'false';
 
             fetch('acciones/notificaciones.php')
             .then(response => {
@@ -335,25 +348,23 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
                 let totalAlerts = 0;
                 let listHtml = '';
                 
-                let readNotifs = JSON.parse(localStorage.getItem('read_notifications') || '[]');
-                let notifiedMsgs = JSON.parse(localStorage.getItem('notified_msgs') || '[]');
-                let notifiedGrades = JSON.parse(localStorage.getItem('notified_grades') || '[]');
-                let notifiedAttendance = JSON.parse(localStorage.getItem('notified_attendance') || '[]');
-                let notifiedAnuncios = JSON.parse(localStorage.getItem('notified_anuncios') || '[]');
+                let readNotifs = JSON.parse(localStorage.getItem(getLocalKey('read_notifications')) || '[]');
+                let notifiedMsgs = JSON.parse(localStorage.getItem(getLocalKey('notified_msgs')) || '[]');
+                let notifiedGrades = JSON.parse(localStorage.getItem(getLocalKey('notified_grades')) || '[]');
+                let notifiedAttendance = JSON.parse(localStorage.getItem(getLocalKey('notified_attendance')) || '[]');
+                let notifiedAnuncios = JSON.parse(localStorage.getItem(getLocalKey('notified_anuncios')) || '[]');
 
                 const isUnread = (id) => !readNotifs.includes(id);
 
                 // 1. Mensajes nuevos
                 if (data.mensajes && Array.isArray(data.mensajes)) {
                     data.mensajes.forEach(msg => {
+                        if (!notifMsgEnabled) return; // Respetar preferencia
                         const notifId = `msg_${msg.id}`;
                         const unreadClass = isUnread(notifId) ? 'unread' : '';
                         if (isUnread(notifId)) totalAlerts++;
                         
-                        if (notifMsgEnabled && !notifiedMsgs.includes(msg.id)) {
-                            // showToast(`✉️ Mensaje de ${escapeHtml(msg.de)}: "${escapeHtml(msg.asunto)}"`, 'info', () => {
-                            //     verDetalleNotif(notifId);
-                            // });
+                        if (!notifiedMsgs.includes(msg.id)) {
                             notifiedMsgs.push(msg.id);
                         }
                         
@@ -374,14 +385,12 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
                 // 2. Calificaciones nuevas
                 if (data.calificaciones && Array.isArray(data.calificaciones)) {
                     data.calificaciones.forEach(cal => {
+                        if (!notifNotesEnabled) return; // Respetar preferencia
                         const notifId = `grade_${cal.id}`;
                         const unreadClass = isUnread(notifId) ? 'unread' : '';
                         if (isUnread(notifId)) totalAlerts++;
                         
-                        if (notifNotesEnabled && !notifiedGrades.includes(cal.id)) {
-                            // showToast(`🎓 Nota en ${escapeHtml(cal.asignatura)}: ${escapeHtml(cal.actividad)} (${cal.nota})`, 'success', () => {
-                            //     verDetalleNotif(notifId);
-                            // });
+                        if (!notifiedGrades.includes(cal.id)) {
                             notifiedGrades.push(cal.id);
                         }
                         
@@ -402,15 +411,13 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
                 // 3. Asistencias nuevas (faltas/retrasos)
                 if (data.asistencias && Array.isArray(data.asistencias)) {
                     data.asistencias.forEach(a => {
+                        if (!notifAttendanceEnabled) return; // Respetar preferencia
                         const notifId = `att_${a.id}`;
                         const unreadClass = isUnread(notifId) ? 'unread' : '';
                         if (isUnread(notifId)) totalAlerts++;
                         
                         const tipoCapitalized = a.tipo.charAt(0).toUpperCase() + a.tipo.slice(1);
-                        if (notifAttendanceEnabled && !notifiedAttendance.includes(a.id)) {
-                            // showToast(`⚠️ ${escapeHtml(tipoCapitalized)} registrada en ${escapeHtml(a.asignatura)} el ${escapeHtml(a.fecha)}`, 'warning', () => {
-                            //     verDetalleNotif(notifId);
-                            // });
+                        if (!notifiedAttendance.includes(a.id)) {
                             notifiedAttendance.push(a.id);
                         }
                         
@@ -427,17 +434,16 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
                     localStorage.setItem('notified_attendance', JSON.stringify(notifiedAttendance));
                 }
 
-                // 4. Anuncios nuevos del tablón de anuncios (siempre activos)
+                // 4. Anuncios nuevos del tablón de anuncios (respeta preferencia)
                 if (data.anuncios && Array.isArray(data.anuncios)) {
                     data.anuncios.forEach(an => {
+                        if (!notifAnunciosEnabled) return; // Si la preferencia está desactivada, no se procesa
+
                         const notifId = `ann_${an.id}`;
                         const unreadClass = isUnread(notifId) ? 'unread' : '';
                         if (isUnread(notifId)) totalAlerts++;
                         
                         if (!notifiedAnuncios.includes(an.id)) {
-                            // showToast(`📢 Nuevo anuncio: "${escapeHtml(an.titulo)}"`, 'danger', () => {
-                            //     verDetalleNotif(notifId);
-                            // });
                             notifiedAnuncios.push(an.id);
                         }
                         
@@ -452,8 +458,13 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
                             </div>
                         `;
                     });
-                    localStorage.setItem('notified_anuncios', JSON.stringify(notifiedAnuncios));
+                    localStorage.setItem(getLocalKey('notified_anuncios'), JSON.stringify(notifiedAnuncios));
                 }
+
+                // Guardar resto de variables (por si hubo cambios en toasts simulados)
+                localStorage.setItem(getLocalKey('notified_msgs'), JSON.stringify(notifiedMsgs));
+                localStorage.setItem(getLocalKey('notified_grades'), JSON.stringify(notifiedGrades));
+                localStorage.setItem(getLocalKey('notified_attendance'), JSON.stringify(notifiedAttendance));
 
                 // Render list
                 const dropdownList = document.getElementById('notif_dropdown_list');

@@ -9,8 +9,8 @@ bp_cursos = Blueprint('bp_cursos', __name__)
 def listar_cursos():
     # Llamamos al repositorio SQL
     cursos = CursoRepository.obtener_todos()
-    # Convertimos los objetos Python a JSON con to_dict()
-    resultado = [c.to_dict() for c in cursos]
+    # Convertimos los objetos Python a JSON con to_dict_full()
+    resultado = [c.to_dict_full() for c in cursos]
     return jsonify(resultado), 200
 
 # --- 2. CREAR CURSO (Solo Admin) ---

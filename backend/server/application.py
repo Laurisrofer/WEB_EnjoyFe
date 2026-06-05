@@ -49,8 +49,7 @@ if __name__ == '__main__':
     # El contexto de aplicación es necesario para que SQLAlchemy sepa dónde actuar
     with app.app_context():
         # db.create_all() # Descomentar solo si NO tienes la BD creada y quieres que Python la cree.
-        # Como ya tienes el script SQL ejecpython application.pyutado, no hace falta create_all().
-        print("✅ Conectado a la base de datos MySQL 'Enjoyfe'")
+        print("[OK] Conectado a la base de datos MySQL 'Enjoyfe'")
 
     # Arrancamos el servidor
     app.run(debug=True, port=5000)

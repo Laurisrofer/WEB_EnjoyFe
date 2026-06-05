@@ -1,10 +1,16 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from auth import requerir_rol
 from repositories.usuario_repo import UsuarioRepository
 from repositories.matricula_repo import MatriculaRepository
 from repositories.evento_repo import EventoRepository
 from models.Asignatura import Asignatura
 from models.Curso import Curso
+from models.Usuario import Usuario
+from models.Matricula import Matricula
+from models.Calificacion import Calificacion
+from models.Asistencia import Asistencia
+from db import db
 
 bp_academico = Blueprint('bp_academico', __name__)
 
@@ -33,7 +39,7 @@ def obtener_info_dashboard():
                 tutor_nombre = tutor.nombre_completo if tutor else "Sin tutor asignado"
 
     # --- AQUÍ ESTÁ EL CINTURÓN DE SEGURIDAD ---
-    eventos_raw = EventoRepository.obtener_eventos_dashboard(usuario_id, id_curso_principal)
+    eventos_raw = EventoRepository.obtener_eventos_dashboard(usuario_id, id_curso_principal, usuario.rol)
     if eventos_raw is None:
         eventos_raw = []
     # ------------------------------------------
@@ -43,10 +49,12 @@ def obtener_info_dashboard():
         eventos_formateados.append({
             "id": e.id,
             "titulo": e.titulo,
-            "fecha": e.fecha.strftime('%d/%m/%Y'),
+            "fecha": e.fecha.strftime('%d/%m/%Y') if e.fecha else "",
             "hora": str(e.hora) if e.hora else "00:00",
             "tipo": e.tipo,
-            "descripcion": e.descripcion or ""
+            "descripcion": e.descripcion or "",
+            "es_propietario": str(e.id_usuario) == str(usuario_id),
+            "id_curso": e.id_curso
         })
 
     return jsonify({
@@ -61,7 +69,15 @@ def obtener_info_dashboard():
 @jwt_required()
 def obtener_mis_asignaturas():
     usuario_id = get_jwt_identity()
-    asignaturas = MatriculaRepository.obtener_asignaturas_por_usuario(usuario_id)
+    usuario = Usuario.query.get(usuario_id)
+    
+    if usuario and usuario.rol == 'profesor':
+        asignaturas = Asignatura.query.filter_by(id_profesor=usuario_id).all()
+    elif usuario and usuario.rol == 'admin':
+        asignaturas = Asignatura.query.all()
+    else:
+        asignaturas = MatriculaRepository.obtener_asignaturas_por_usuario(usuario_id)
+    
     
     lista_asignaturas = []
     for asig in asignaturas:
@@ -195,6 +211,90 @@ def generar_guia_docente(nombre_asignatura):
     )
     return html
 
+@bp_academico.route('/asignatura', methods=['POST'])
+@jwt_required()
+@requerir_rol('admin')
+def crear_asignatura():
+    datos = request.get_json()
+    if not datos or 'nombre' not in datos or 'id_curso' not in datos:
+        return jsonify(mensaje="Faltan datos obligatorios"), 400
+        
+    nueva = Asignatura(
+        nombre=datos['nombre'],
+        id_curso=datos['id_curso'],
+        id_profesor=datos.get('id_profesor'),
+        guia_docente=datos.get('guia_docente'),
+        recursos_json=datos.get('recursos_json'),
+        color=datos.get('color', '#3498db')
+    )
+    db.session.add(nueva)
+    db.session.flush() # Para obtener el ID
+
+    from models.Horario import Horario
+    if 'horarios' in datos and isinstance(datos['horarios'], list):
+        for h in datos['horarios']:
+            nuevo_h = Horario(
+                id_curso=nueva.id_curso,
+                id_asignatura=nueva.id,
+                dia_semana=h.get('dia_semana', 1),
+                hora_inicio=h.get('hora_inicio', '00:00'),
+                hora_fin=h.get('hora_fin', '00:00')
+            )
+            db.session.add(nuevo_h)
+
+    db.session.commit()
+    return jsonify(mensaje="Asignatura creada", id=nueva.id), 201
+
+@bp_academico.route('/asignatura/<int:id_asignatura>', methods=['PUT'])
+@jwt_required()
+@requerir_rol('admin')
+def modificar_asignatura(id_asignatura):
+    datos = request.get_json()
+    asig = Asignatura.query.get(id_asignatura)
+    if not asig: return jsonify(mensaje="No encontrada"), 404
+    
+    if 'nombre' in datos: asig.nombre = datos['nombre']
+    if 'id_curso' in datos: asig.id_curso = datos['id_curso']
+    if 'id_profesor' in datos: asig.id_profesor = datos['id_profesor']
+    if 'guia_docente' in datos: asig.guia_docente = datos['guia_docente']
+    if 'recursos_json' in datos: asig.recursos_json = datos['recursos_json']
+    if 'color' in datos: asig.color = datos['color']
+    
+    from models.Horario import Horario
+    if 'horarios' in datos and isinstance(datos['horarios'], list):
+        # Borramos los horarios actuales
+        Horario.query.filter_by(id_asignatura=asig.id).delete()
+        # Insertamos los nuevos
+        for h in datos['horarios']:
+            nuevo_h = Horario(
+                id_curso=asig.id_curso,
+                id_asignatura=asig.id,
+                dia_semana=h.get('dia_semana', 1),
+                hora_inicio=h.get('hora_inicio', '00:00'),
+                hora_fin=h.get('hora_fin', '00:00')
+            )
+            db.session.add(nuevo_h)
+    
+    db.session.commit()
+    return jsonify(mensaje="Asignatura modificada"), 200
+
+@bp_academico.route('/asignatura/<int:id_asignatura>', methods=['DELETE'])
+@jwt_required()
+@requerir_rol('admin')
+def borrar_asignatura(id_asignatura):
+    asig = Asignatura.query.get(id_asignatura)
+    if not asig: return jsonify(mensaje="No encontrada"), 404
+    
+    from models.Horario import Horario
+    from models.Matricula import Matricula
+    
+    Horario.query.filter_by(id_asignatura=id_asignatura).delete()
+    Matricula.query.filter_by(id_asignatura=id_asignatura).delete()
+    
+    db.session.delete(asig)
+    db.session.commit()
+    return jsonify(mensaje="Asignatura borrada"), 200
+
 @bp_academico.route('/asignatura/<int:id_asignatura>', methods=['GET'])
 @jwt_required()
 def obtener_detalle_asignatura(id_asignatura):
@@ -208,20 +308,32 @@ def obtener_detalle_asignatura(id_asignatura):
         profesor = UsuarioRepository.obtener_por_id(asig.id_profesor)
     nombre_profe = profesor.nombre_completo if profesor else "Profesor sin asignar"
 
-    guia_docente = generar_guia_docente(asig.nombre)
+    if hasattr(asig, 'guia_docente') and asig.guia_docente:
+        guia_docente = asig.guia_docente
+    else:
+        guia_docente = generar_guia_docente(asig.nombre)
+
+    import json
+    recursos_json = []
+    if hasattr(asig, 'recursos_json') and asig.recursos_json:
+        try:
+            recursos_json = json.loads(asig.recursos_json)
+        except Exception:
+            pass
+
+    if not recursos_json:
+        recursos_json = [
+            {"titulo": "Acceso a Classroom", "url": "https://classroom.google.com"},
+            {"titulo": "Carpeta de Apuntes (Google Drive)", "url": "https://drive.google.com"}
+        ]
 
     return jsonify({
         "id": asig.id,
         "nombre": asig.nombre,
         "profesor": nombre_profe,
         "guia_docente": guia_docente,
-        "recursos": [
-            {"titulo": "Acceso a Classroom", "url": "https://classroom.google.com"},
-            {"titulo": "Carpeta de Apuntes (Google Drive)", "url": "https://drive.google.com"}
-        ],
-        "enlaces_interes": [
-            {"titulo": "Material audiovisual de apoyo (YouTube)", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
-        ]
+        "recursos": recursos_json,
+        "enlaces_interes": []
     }), 200
 
 # === ENDPOINTS DE EVENTOS ===
@@ -239,7 +351,9 @@ def api_crear_evento():
         'fecha': datos.get('fecha'),
         'hora': datos.get('hora'), # Añadimos la hora aquí
         'tipo': datos.get('tipo', 'personal'),
-        'id_usuario': usuario_id 
+        'id_usuario': usuario_id,
+        'descripcion': datos.get('descripcion'),
+        'id_curso': datos.get('id_curso')
     }
 
     exito = EventoRepository.crear_evento(datos_evento)
@@ -253,7 +367,11 @@ def api_crear_evento():
 @jwt_required()
 def api_borrar_evento(id_evento):
     usuario_id = get_jwt_identity()
-    if EventoRepository.borrar_evento(id_evento, usuario_id):
+    usuario = UsuarioRepository.obtener_por_id(usuario_id)
+    if not usuario:
+        return jsonify(mensaje="Usuario no encontrado"), 404
+        
+    if EventoRepository.borrar_evento(id_evento, usuario_id, usuario.rol):
         return jsonify(mensaje="Evento borrado"), 200
     return jsonify(mensaje="Error al borrar"), 404
 
@@ -261,9 +379,13 @@ def api_borrar_evento(id_evento):
 @jwt_required()
 def api_editar_evento(id_evento):
     usuario_id = get_jwt_identity()
+    usuario = UsuarioRepository.obtener_por_id(usuario_id)
+    if not usuario:
+        return jsonify(mensaje="Usuario no encontrado"), 404
+        
     datos = request.get_json()
     
-    if EventoRepository.actualizar_evento(id_evento, datos, usuario_id):
+    if EventoRepository.actualizar_evento(id_evento, datos, usuario_id, usuario.rol):
         return jsonify(mensaje="Evento actualizado correctamente"), 200
     
     return jsonify(mensaje="Error al actualizar el evento"), 404
@@ -287,12 +409,15 @@ def obtener_perfil():
         if curso:
             curso_nombre = curso.nombre
 
+    tutoria_curso = Curso.query.filter_by(id_tutor=usuario.id).first() if usuario.rol == 'profesor' else None
+
     return jsonify({
         "nombre": usuario.nombre_completo,
         "rol": usuario.rol,
         "curso": curso_nombre,
         "dni": usuario.dni if hasattr(usuario, 'dni') and usuario.dni else "No especificado",
-        "email": usuario.email
+        "email": usuario.email,
+        "tutoria": tutoria_curso.nombre if tutoria_curso else "Ninguna"
     }), 200
 
 @bp_academico.route('/perfil', methods=['PUT'])
@@ -319,6 +444,57 @@ def actualizar_perfil():
         return jsonify(mensaje=mensaje), 200
     else:
         return jsonify(mensaje=mensaje), 400
+
+@bp_academico.route('/admin-stats', methods=['GET'])
+@jwt_required()
+@requerir_rol('admin')
+def obtener_estadisticas_admin():
+    from models.Usuario import Usuario
+    from models.Curso import Curso
+    from models.Asistencia import Asistencia
+    from sqlalchemy import func
+    
+    total_profesores = Usuario.query.filter_by(rol='profesor').count()
+    total_alumnos = Usuario.query.filter_by(rol='alumno').count()
+    total_cursos = Curso.query.count()
+    
+    # Asistencia por curso (calculando el porcentaje de "presente")
+    asistencia_por_curso = []
+    alumnos_por_curso = []
+    cursos = Curso.query.all()
+    for c in cursos:
+        # Alumnos por curso (contando ids de alumnos distintos matriculados en asignaturas del curso)
+        from models.Asignatura import Asignatura
+        from models.Matricula import Matricula
+        num_alumnos = db.session.query(func.count(func.distinct(Matricula.id_alumno))).\
+            join(Asignatura, Matricula.id_asignatura == Asignatura.id).\
+            filter(Asignatura.id_curso == c.id).scalar() or 0
+            
+        alumnos_por_curso.append({
+            "curso": c.nombre,
+            "cantidad": num_alumnos
+        })
+        
+        # En Enjoyfe se estiman 40 sesiones por curso para cálculos de asistencia global
+        faltas = db.session.query(func.count(Asistencia.id)).\
+            join(Asignatura, Asistencia.id_asignatura == Asignatura.id).\
+            filter(Asignatura.id_curso == c.id, Asistencia.tipo == 'falta').scalar() or 0
+            
+        max_clases = num_alumnos * 40
+        asist_pct = max(0, ((max_clases - faltas) / max_clases) * 100) if max_clases > 0 else 0
+        porcentaje = round(asist_pct, 1)
+        asistencia_por_curso.append({
+            "curso": c.nombre,
+            "porcentaje": porcentaje
+        })
+        
+    return jsonify({
+        "total_profesores": total_profesores,
+        "total_alumnos": total_alumnos,
+        "total_cursos": total_cursos,
+        "alumnos_por_curso": alumnos_por_curso,
+        "asistencia_por_curso": asistencia_por_curso
+    }), 200
 
 @bp_academico.route('/notificaciones-recientes', methods=['GET'])
 @jwt_required()
@@ -390,7 +566,8 @@ def obtener_notificaciones_recientes():
 
     query_anuncios = Evento.query.filter(
         Evento.tipo == 'anuncio',
-        Evento.fecha >= limite_fecha
+        Evento.fecha >= limite_fecha,
+        Evento.id_usuario != usuario_id
     )
     if id_curso:
         query_anuncios = query_anuncios.filter((Evento.id_curso == id_curso) | (Evento.id_curso.is_(None)))
@@ -434,8 +611,8 @@ def obtener_mi_horario():
     lista_cursos = []
     curso_nombre = "Horario Escolar"
 
-    # Caso 1: Admin o consulta con parámetro de curso
-    if rol == 'admin' or id_curso_param:
+    # Caso 1: Admin o consulta con parámetro de curso general
+    if rol == 'admin':
         cursos = Curso.query.all()
         lista_cursos = [{"id": c.id, "nombre": c.nombre} for c in cursos]
         
@@ -463,8 +640,21 @@ def obtener_mi_horario():
 
     # Caso 3: Profesor
     elif rol == 'profesor':
-        curso_nombre = "Mi Horario Docente"
-        mis_asignaturas = Asignatura.query.filter_by(id_profesor=usuario_id).all()
+        # Obtener los cursos donde imparte
+        cursos_imparte = db.session.query(Curso).join(Asignatura).filter(Asignatura.id_profesor == usuario_id).distinct().all()
+        lista_cursos = [{"id": c.id, "nombre": c.nombre} for c in cursos_imparte]
+        
+        # Añadir opción "Todos mis cursos" (id vacío)
+        lista_cursos.insert(0, {"id": "", "nombre": "Todos mis cursos"})
+        
+        if id_curso_param:
+            curso = Curso.query.get(id_curso_param)
+            curso_nombre = curso.nombre if curso else "Mi Horario"
+            mis_asignaturas = Asignatura.query.filter_by(id_profesor=usuario_id, id_curso=id_curso_param).all()
+        else:
+            curso_nombre = "Todos mis cursos"
+            mis_asignaturas = Asignatura.query.filter_by(id_profesor=usuario_id).all()
+            
         ids_asignaturas = [a.id for a in mis_asignaturas]
         if ids_asignaturas:
             horarios = Horario.query.filter(Horario.id_asignatura.in_(ids_asignaturas)).all()
@@ -485,12 +675,22 @@ def obtener_mi_horario():
             "curso": h.asignatura.curso.nombre,
             "dia_semana": h.dia_semana,  # 1 a 5
             "hora_inicio": h.hora_inicio.strftime('%H:%M') if h.hora_inicio else "00:00",
-            "hora_fin": h.hora_fin.strftime('%H:%M') if h.hora_fin else "00:00"
+            "hora_fin": h.hora_fin.strftime('%H:%M') if h.hora_fin else "00:00",
+            "color": h.asignatura.color if hasattr(h.asignatura, 'color') else "#3498db",
+            "id_asignatura": h.asignatura.id
         })
+
+    # Obtener el tutor del curso (si hay un curso específico)
+    tutor_nombre = "Sin tutor asignado"
+    if 'curso' in locals() and curso and curso.id_tutor:
+        tutor = Usuario.query.get(curso.id_tutor)
+        if tutor:
+            tutor_nombre = tutor.nombre_completo
 
     return jsonify({
         "rol": rol,
         "curso_nombre": curso_nombre,
+        "tutor_nombre": tutor_nombre,
         "horarios": resultado,
         "cursos_disponibles": lista_cursos
     }), 200
@@ -756,18 +956,22 @@ def solicitar_justificacion():
     usuario_id = get_jwt_identity()
     datos = request.get_json()
 
-    if not datos or not datos.get('id_asistencia') or not datos.get('justificante_texto'):
+    if not datos or not datos.get('id_asistencia'):
         return jsonify(mensaje="Datos insuficientes"), 400
 
     id_asistencia = datos.get('id_asistencia')
-    justificante_texto = datos.get('justificante_texto')
+    justificante_texto = datos.get('justificante_texto', '')
 
     asistencia = Asistencia.query.filter_by(id=id_asistencia, id_alumno=usuario_id).first()
     if not asistencia:
         return jsonify(mensaje="Falta/retraso no encontrado"), 404
 
-    asistencia.justificante_texto = justificante_texto
-    asistencia.justificada = False  # Queda en estado "pendiente"
+    if justificante_texto == '':
+        asistencia.justificante_texto = None
+    else:
+        asistencia.justificante_texto = justificante_texto
+        
+    asistencia.justificada = False  # Queda en estado "pendiente" o sin justificar
 
     try:
         db.session.commit()
@@ -1004,3 +1208,266 @@ def resolver_justificacion():
     except Exception as e:
         db.session.rollback()
         return jsonify(mensaje=f"Error al guardar los cambios: {str(e)}"), 500
+
+# === ENDPOINTS DE PROFESOR ===
+
+@bp_academico.route('/mis-cursos', methods=['GET'])
+@jwt_required()
+def obtener_mis_cursos():
+    '''
+    Obtiene los cursos en los que el profesor imparte asignaturas o es tutor.
+    '''
+    usuario_id = get_jwt_identity()
+    usuario = Usuario.query.get(usuario_id)
+    
+    if not usuario or usuario.rol != 'profesor':
+        return jsonify(mensaje="Acceso denegado"), 403
+        
+    # Cursos donde imparte (tiene asignaturas)
+    cursos_imparte = db.session.query(Curso).join(Asignatura).filter(Asignatura.id_profesor == usuario_id).distinct().all()
+    
+    # Cursos donde es tutor
+    cursos_tutor = Curso.query.filter_by(id_tutor=usuario_id).all()
+    
+    # Combinar sin duplicados
+    todos_cursos = {c.id: c for c in cursos_imparte}
+    for c in cursos_tutor:
+        todos_cursos[c.id] = c
+        
+    resultado = []
+    for c in todos_cursos.values():
+        c_dict = {
+            'id': c.id,
+            'nombre': c.nombre,
+            'descripcion': c.descripcion,
+            'es_tutor': c.id_tutor == usuario_id
+        }
+        resultado.append(c_dict)
+        
+    return jsonify(resultado), 200
+
+@bp_academico.route('/mis-alumnos', methods=['GET'])
+@jwt_required()
+def obtener_mis_alumnos():
+    '''
+    Obtiene los alumnos matriculados en un curso o asignatura específica.
+    Param: id_curso (opcional), id_asignatura (opcional)
+    '''
+    usuario_id = get_jwt_identity()
+    usuario = Usuario.query.get(usuario_id)
+    
+    if not usuario or usuario.rol != 'profesor':
+        return jsonify(mensaje="Acceso denegado"), 403
+        
+    id_curso = request.args.get('id_curso')
+    id_asignatura = request.args.get('id_asignatura')
+    
+    query = db.session.query(Usuario).join(Matricula, Usuario.id == Matricula.id_alumno)
+    
+    if id_asignatura:
+        # Verificar que el profesor imparta esta asignatura
+        asig = Asignatura.query.filter_by(id=id_asignatura, id_profesor=usuario_id).first()
+        if not asig:
+            return jsonify(mensaje="No impartes esta asignatura"), 403
+        query = query.filter(Matricula.id_asignatura == id_asignatura)
+    elif id_curso:
+        # Alumnos matriculados en asignaturas de este curso
+        query = query.join(Asignatura, Matricula.id_asignatura == Asignatura.id).filter(Asignatura.id_curso == id_curso)
+    else:
+        return jsonify(mensaje="Debes proporcionar id_curso o id_asignatura"), 400
+        
+    alumnos = query.filter(Usuario.rol == 'alumno', Usuario.estado == 'activo').distinct().order_by(Usuario.nombre_completo).all()
+    
+    resultado = []
+    for alu in alumnos:
+        resultado.append({
+            'id': alu.id,
+            'nombre_completo': alu.nombre_completo,
+            'email': alu.email,
+            'dni': alu.dni
+        })
+        
+    return jsonify(resultado), 200
+
+@bp_academico.route('/calificacion/<int:id_calificacion>', methods=['DELETE'])
+@jwt_required()
+def eliminar_calificacion(id_calificacion):
+    '''
+    Elimina una calificación específica si pertenece a una asignatura del profesor.
+    '''
+    usuario_id = get_jwt_identity()
+    
+    # Verificar que la calificación exista
+    calif = Calificacion.query.get(id_calificacion)
+    if not calif:
+        return jsonify(mensaje="Calificación no encontrada"), 404
+        
+    # Verificar que el profesor imparta la asignatura de esta calificación
+    matricula = Matricula.query.get(calif.id_matricula)
+    if not matricula:
+        return jsonify(mensaje="Error de integridad: Matrícula no encontrada"), 500
+        
+    asignatura = Asignatura.query.filter_by(id=matricula.id_asignatura, id_profesor=usuario_id).first()
+    
+    # Si no la imparte, comprobamos si es admin
+    if not asignatura:
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario or usuario.rol != 'admin':
+            return jsonify(mensaje="No tienes permiso para eliminar esta calificación"), 403
+            
+    db.session.delete(calif)
+    db.session.commit()
+    
+    return jsonify(mensaje="Calificación eliminada correctamente"), 200
+
+@bp_academico.route('/guia-docente/<int:id_asignatura>', methods=['PUT'])
+@jwt_required()
+def actualizar_guia_docente(id_asignatura):
+    '''
+    Actualiza la guía docente (descripción) de una asignatura.
+    '''
+    usuario_id = get_jwt_identity()
+    datos = request.get_json()
+    
+    if not datos or 'guia_docente' not in datos:
+        return jsonify(mensaje="Faltan datos obligatorios"), 400
+        
+    # Verificar permisos (ser el profesor de la asignatura o admin)
+    usuario = Usuario.query.get(usuario_id)
+    asignatura = Asignatura.query.get(id_asignatura)
+    
+    if not asignatura:
+        return jsonify(mensaje="Asignatura no encontrada"), 404
+        
+    if asignatura.id_profesor != usuario_id and usuario.rol != 'admin':
+        return jsonify(mensaje="No tienes permiso para editar esta guía docente"), 403
+        
+    # Guardamos en la base de datos (requiere añadir el campo guia_docente a Asignatura)
+    # Si el modelo Asignatura no tiene guia_docente, por ahora lo simulamos
+    if hasattr(asignatura, 'guia_docente'):
+        asignatura.guia_docente = datos['guia_docente']
+        db.session.commit()
+        return jsonify(mensaje="Guía docente actualizada"), 200
+    else:
+        return jsonify(mensaje="Error: El campo guia_docente no existe en la base de datos"), 501
+
+@bp_academico.route('/recursos-asignatura/<int:id_asignatura>', methods=['PUT'])
+@jwt_required()
+def actualizar_recursos(id_asignatura):
+    import json
+    usuario_id = get_jwt_identity()
+    datos = request.get_json()
+    
+    if not datos or 'recursos' not in datos:
+        return jsonify(mensaje="Faltan datos obligatorios"), 400
+        
+    usuario = Usuario.query.get(usuario_id)
+    asignatura = Asignatura.query.get(id_asignatura)
+    
+    if not asignatura:
+        return jsonify(mensaje="Asignatura no encontrada"), 404
+        
+    if asignatura.id_profesor != usuario_id and usuario.rol != 'admin':
+        return jsonify(mensaje="No tienes permiso para editar recursos"), 403
+        
+    if hasattr(asignatura, 'recursos_json'):
+        asignatura.recursos_json = json.dumps(datos['recursos'])
+        db.session.commit()
+        return jsonify(mensaje="Recursos actualizados"), 200
+    else:
+        return jsonify(mensaje="Error: El campo recursos_json no existe"), 501
+
+@bp_academico.route('/estadisticas-profesor', methods=['GET'])
+@jwt_required()
+def obtener_estadisticas_profesor():
+    '''
+    Calcula % de aprobados y asistencia para las asignaturas de un profesor.
+    '''
+    usuario_id = get_jwt_identity()
+    usuario = Usuario.query.get(usuario_id)
+    
+    if not usuario or usuario.rol != 'profesor':
+        return jsonify(mensaje="Acceso denegado"), 403
+        
+    id_asignatura = request.args.get('id_asignatura')
+    
+    # Base query for subjects
+    asig_query = Asignatura.query.filter_by(id_profesor=usuario_id)
+    if id_asignatura:
+        asig_query = asig_query.filter_by(id=id_asignatura)
+        
+    asignaturas = asig_query.all()
+    if not asignaturas:
+        return jsonify([]), 200
+        
+    resultados = []
+    
+    for asig in asignaturas:
+        matriculas = Matricula.query.filter_by(id_asignatura=asig.id).all()
+        total_alumnos = len(matriculas)
+        aprobados = 0
+        sum_notas = 0
+        alumnos_con_nota = 0
+        distribucion_notas = {"Suspenso": 0, "Suficiente": 0, "Bien": 0, "Notable": 0, "Sobresaliente": 0}
+        
+        for m in matriculas:
+            # Calcular nota del alumno
+            nota_alumno = None
+            if m.nota_final is not None:
+                nota_alumno = float(m.nota_final)
+            else:
+                califs_raw = Calificacion.query.filter_by(id_matricula=m.id).all()
+                califs = [c for c in califs_raw if c.nota is not None]
+                if califs:
+                    nota_alumno = sum(float(c.nota) for c in califs) / len(califs)
+            
+            if nota_alumno is not None:
+                sum_notas += nota_alumno
+                alumnos_con_nota += 1
+                if nota_alumno >= 5.0:
+                    aprobados += 1
+                
+                # Para la campana de Gauss
+                if nota_alumno < 5.0:
+                    distribucion_notas["Suspenso"] += 1
+                elif nota_alumno < 6.0:
+                    distribucion_notas["Suficiente"] += 1
+                elif nota_alumno < 7.0:
+                    distribucion_notas["Bien"] += 1
+                elif nota_alumno < 9.0:
+                    distribucion_notas["Notable"] += 1
+                else:
+                    distribucion_notas["Sobresaliente"] += 1
+                    
+        porcentaje_aprobados = round((aprobados / total_alumnos * 100), 1) if total_alumnos > 0 else 0
+        nota_media = round((sum_notas / alumnos_con_nota), 2) if alumnos_con_nota > 0 else 0
+        
+        # Calcular % asistencia media
+        asistencias = Asistencia.query.filter_by(id_asignatura=asig.id).all()
+        faltas = sum(1 for a in asistencias if a.tipo == 'falta')
+        retrasos = sum(1 for a in asistencias if a.tipo == 'retraso')
+        
+        # En Enjoyfe se estiman 40 sesiones por curso para cálculos de asistencia global
+        max_clases = total_alumnos * 40
+        asist_pct = max(0, ((max_clases - faltas) / max_clases) * 100) if max_clases > 0 else 0
+        
+        curso = Curso.query.get(asig.id_curso)
+        nombre_curso = curso.nombre if curso else "Sin curso"
+        
+        resultados.append({
+            'id_asignatura': asig.id,
+            'nombre_asignatura': asig.nombre,
+            'id_curso': asig.id_curso,
+            'nombre_curso': nombre_curso,
+            'total_alumnos': total_alumnos,
+            'aprobados': aprobados,
+            'porcentaje_aprobados': round(porcentaje_aprobados, 1),
+            'nota_media': round(nota_media, 2),
+            'total_faltas_registradas': faltas,
+            'total_retrasos_registrados': retrasos,
+            'porcentaje_asistencia': round(asist_pct, 1),
+            'distribucion_notas': distribucion_notas
+        })
+        
+    return jsonify(resultados), 200
+

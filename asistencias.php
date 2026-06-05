@@ -20,8 +20,6 @@ include 'componentes/header.php';
         <p class="asistencia-subtitulo" id="asistencia_subtitulo">
             <?php if ($rol_usuario === 'alumno'): ?>
                 Cargando estadísticas de asistencia...
-            <?php else: ?>
-                Consola de registro de asistencia escolar. Pasa lista en tus clases programadas de hoy o revisa los justificantes pendientes de los alumnos.
             <?php endif; ?>
         </p>
     </div>
@@ -80,13 +78,10 @@ include 'componentes/header.php';
                     <div style="margin-bottom: 15px;">
                         <textarea id="justificar_texto_input" style="width:100%;" rows="4" required placeholder="Describe el motivo de la falta..."></textarea>
                     </div>
-                    <div style="margin-bottom: 20px;">
-                        <label style="display:block; margin-bottom:5px;">Adjuntar archivo (opcional):</label>
-                        <input type="file" id="justificar_adjunto_input" style="width:100%;">
-                    </div>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn-action">Enviar justificación</button>
-                        <button type="button" class="btn-action btn-danger" onclick="cerrarModalJustificar()">Cancelar</button>
+                    <div class="modal-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" id="btn_enviar_just" class="btn-action">Enviar justificación</button>
+                        <button type="button" id="btn_eliminar_just" class="btn-action btn-danger" style="display:none;" onclick="eliminarJustificacion()">Eliminar</button>
+                        <button type="button" class="btn-action" style="background:#ccc; color:#333;" onclick="cerrarModalJustificar()">Cancelar</button>
                     </div>
                 </form>
             </div>
@@ -97,7 +92,7 @@ include 'componentes/header.php';
         <!-- Pestañas del profesor -->
         <div class="tab-nav">
             <button class="tab-link active" onclick="switchTab('tab_registro')">📋 Registrar asistencia</button>
-            <button class="tab-link" onclick="switchTab('tab_justificantes')">✉️ Justificaciones Recibidas</button>
+            <button class="tab-link" onclick="switchTab('tab_justificantes')">✉️ Justificaciones recibidas</button>
         </div>
 
         <!-- PESTAÑA 1: REGISTRAR ASISTENCIA -->
@@ -242,7 +237,7 @@ include 'componentes/header.php';
                 } else if (a.justificante_texto) {
                     badgeClass = 'badge-pendiente';
                     estadoTexto = 'Pte. Aprobación';
-                    accionHtml = `<button class="btn-link-table" onclick="mostrarModalNotif('Justificación enviada', '${escapeHtml(a.justificante_texto).replace(/'/g, "\\'")}', '${a.fecha}', 'Justificante')">Ver justificación</button>`;
+                    accionHtml = `<button class="btn-link-table" onclick="abrirModalJustificar(${a.id}, '${escapeHtml(a.asignatura).replace(/'/g, "\\'")}', '${a.fecha}', '${a.hora}', '${escapeHtml(a.justificante_texto).replace(/'/g, "\\'")}')">Ver / Modificar</button>`;
                 } else {
                     accionHtml = `<button class="btn-link-table" onclick="abrirModalJustificar(${a.id}, '${escapeHtml(a.asignatura).replace(/'/g, "\\'")}', '${a.fecha}', '${a.hora}')">Justificar</button>`;
                 }
@@ -266,10 +261,22 @@ include 'componentes/header.php';
         });
     }
 
-    function abrirModalJustificar(id, asignatura, fecha, hora) {
+    function abrirModalJustificar(id, asignatura, fecha, hora, textoActual = '') {
         document.getElementById('justificar_id_input').value = id;
         document.getElementById('justificar_info').innerHTML = `Falta en la materia <strong>${asignatura}</strong> el día <strong>${fecha}</strong> a las <strong>${hora}</strong>.`;
-        document.getElementById('justificar_texto_input').value = '';
+        document.getElementById('justificar_texto_input').value = textoActual;
+        
+        const btnEliminar = document.getElementById('btn_eliminar_just');
+        const btnEnviar = document.getElementById('btn_enviar_just');
+        
+        if (textoActual) {
+            btnEliminar.style.display = 'inline-block';
+            btnEnviar.textContent = 'Modificar justificación';
+        } else {
+            btnEliminar.style.display = 'none';
+            btnEnviar.textContent = 'Enviar justificación';
+        }
+        
         document.getElementById('modal_justificar').style.display = 'flex';
     }
 
@@ -281,14 +288,10 @@ include 'componentes/header.php';
         e.preventDefault();
         const id = document.getElementById('justificar_id_input').value;
         const texto = document.getElementById('justificar_texto_input').value;
-        const archivo = document.getElementById('justificar_adjunto_input').files[0];
 
         const formData = new FormData();
         formData.append('id_asistencia', id);
         formData.append('justificante_texto', texto);
-        if (archivo) {
-            formData.append('adjunto', archivo);
-        }
 
         fetch('acciones/gestion_asistencias.php?action=save_justificacion', {
             method: 'POST',
@@ -304,6 +307,35 @@ include 'componentes/header.php';
             console.error(err);
             showToast("Error al enviar justificante", "danger");
         });
+    }
+
+    function eliminarJustificacion() {
+        const id = document.getElementById('justificar_id_input').value;
+        
+        mostrarConfirmacionGlobal(
+            'Eliminar justificación',
+            '¿Estás seguro de que deseas eliminar esta justificación? Tendrás que volver a enviarla si quieres justificar la falta.',
+            function() {
+                const formData = new FormData();
+                formData.append('id_asistencia', id);
+                formData.append('justificante_texto', ''); // texto vacío para eliminar
+                
+                fetch('acciones/gestion_asistencias.php?action=save_justificacion', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    showToast("Justificación eliminada", "success");
+                    cerrarModalJustificar();
+                    cargarAsistenciasAlumno();
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast("Error al eliminar justificante", "danger");
+                });
+            }
+        );
     }
 
     cargarAsistenciasAlumno();
@@ -616,6 +648,7 @@ include 'componentes/header.php';
     <?php endif; ?>
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>
 

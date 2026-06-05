@@ -70,6 +70,16 @@ if ($action === 'save_final') {
     realizarPeticionCurl("http://127.0.0.1:5000/academico/guardar-nota-final", 'POST', $json_recibido);
 }
 
+// 4. Eliminar calificación individual
+if ($action === 'delete_calif') {
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    if ($id > 0) {
+        realizarPeticionCurl("http://127.0.0.1:5000/academico/calificacion/" . $id, 'DELETE');
+    } else {
+        echo json_encode(['mensaje' => 'ID de calificación inválido']);
+    }
+}
+
 // Acción desconocida
 http_response_code(400);
 echo json_encode(["mensaje" => "Acción no válida"]);

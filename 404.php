@@ -70,5 +70,6 @@
         <a href="dashboard.php" class="btn-home">Volver al inicio</a>
         <div class="brand">Enjoyfe</div>
     </div>
+    <?php include 'componentes/footer.php'; ?>
 </body>
 </html>

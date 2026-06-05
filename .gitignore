@@ -21,3 +21,5 @@ uploads/
 
 # Temp files
 header_view.txt
+*.db
+

@@ -22,10 +22,9 @@ include 'componentes/header.php';
                 <h2 class="horario-titulo" id="horario_grupo_nombre">Cargando Horario...</h2>
             </div>
             
-            <!-- Selector para Admin -->
             <div class="selector-container" id="admin_selector_container" style="display: none;">
                 <label for="curso_select">Curso:</label>
-                <select id="curso_select" class="select-curso" onchange="cargarHorario(this.value)">
+                <select id="curso_select" class="form-control" style="width: auto; padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); cursor: pointer;" onchange="cargarHorario(this.value)">
                     <!-- Opciones cargadas por JS -->
                 </select>
             </div>
@@ -53,19 +52,28 @@ include 'componentes/header.php';
 
     const diasNombres = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
-    // Función para obtener estilos dinámicos de colores HSL armonizados y responsivos
-    function getSubjectStyle(name) {
-        let hash = 0;
-        for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        const hue = Math.abs(hash) % 360;
-        
+    // Función para obtener estilos de color
+    function getSubjectStyle(match) {
+        let bg, text, border;
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        
-        const bg = isDark ? `hsla(${hue}, 60%, 25%, 0.35)` : `hsla(${hue}, 85%, 96%, 1)`;
-        const text = isDark ? `hsl(${hue}, 85%, 85%)` : `hsl(${hue}, 70%, 30%)`;
-        const border = isDark ? `hsl(${hue}, 50%, 40%)` : `hsl(${hue}, 60%, 82%)`;
+
+        if (match.color && match.color !== '#3498db' && match.color !== '') {
+            // Usa el color de la base de datos si fue personalizado
+            bg = match.color;
+            text = '#ffffff'; // Texto blanco para contrastar
+            border = match.color;
+        } else {
+            // Fallback al color hash si no hay color personalizado
+            let hash = 0;
+            for (let i = 0; i < match.asignatura.length; i++) {
+                hash = match.asignatura.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const hue = Math.abs(hash) % 360;
+            
+            bg = isDark ? `hsla(${hue}, 60%, 25%, 0.35)` : `hsla(${hue}, 85%, 96%, 1)`;
+            text = isDark ? `hsl(${hue}, 85%, 85%)` : `hsl(${hue}, 70%, 30%)`;
+            border = isDark ? `hsl(${hue}, 50%, 40%)` : `hsl(${hue}, 60%, 82%)`;
+        }
         
         return `background-color: ${bg}; color: ${text}; border: 1px solid ${border};`;
     }
@@ -84,12 +92,14 @@ include 'componentes/header.php';
         })
         .then(data => {
             // Actualizar Cabecera
-            document.getElementById('horario_grupo_nombre').innerText = data.rol === 'profesor' 
-                ? "Mi horario docente" 
-                : `Horario - ${data.curso_nombre}`;
+            if (data.rol === 'profesor') {
+                document.getElementById('horario_grupo_nombre').innerHTML = "Mi horario docente";
+            } else {
+                document.getElementById('horario_grupo_nombre').innerHTML = `Horario - ${data.curso_nombre} <span style="font-size: 0.6em; color: var(--text-muted); margin-left: 15px; font-weight: normal; vertical-align: middle;">Tutor: <strong>${data.tutor_nombre || 'Sin asignar'}</strong></span>`;
+            }
 
-            // Si es administrador, pintar el selector de cursos (si no está pintado)
-            if (data.rol === 'admin' && data.cursos_disponibles && data.cursos_disponibles.length > 0) {
+            // Si es administrador o profesor, pintar el selector de cursos (si no está pintado)
+            if ((data.rol === 'admin' || data.rol === 'profesor') && data.cursos_disponibles && data.cursos_disponibles.length > 0) {
                 const selectorContainer = document.getElementById('admin_selector_container');
                 const select = document.getElementById('curso_select');
                 
@@ -149,7 +159,7 @@ include 'componentes/header.php';
                         }
 
                         if (match) {
-                            const style = getSubjectStyle(match.asignatura);
+                            const style = getSubjectStyle(match);
                             // Si es profesor, además del nombre de asignatura enseñamos a qué curso pertenece
                             const detailSubtext = data.rol === 'profesor' 
                                 ? `<span class="asig-curso">${match.curso}</span>` 
@@ -186,5 +196,6 @@ include 'componentes/header.php';
     });
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>

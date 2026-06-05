@@ -62,18 +62,6 @@ if ($action === 'save_justificacion') {
     } else {
         $id = isset($_POST['id_asistencia']) ? intval($_POST['id_asistencia']) : 0;
         $texto = isset($_POST['justificante_texto']) ? $_POST['justificante_texto'] : '';
-        
-        if (isset($_FILES['adjunto']) && $_FILES['adjunto']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = '../uploads/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
-            $file_name = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "_", basename($_FILES['adjunto']['name']));
-            $target_file = $upload_dir . $file_name;
-            if (move_uploaded_file($_FILES['adjunto']['tmp_name'], $target_file)) {
-                $texto .= "\n\n[Adjunto: uploads/" . $file_name . "]";
-            }
-        }
         $json_recibido = json_encode(["id_asistencia" => $id, "justificante_texto" => $texto]);
     }
     

@@ -7,7 +7,7 @@
 /* Selector de Curso para Admin */
 .selector-container { display: flex; align-items: center; gap: 10px; }
 .selector-container label { font-weight: bold; color: var(--text-color); }
-.select-curso { padding: 8px 12px; border-radius: 5px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); font-size: 0.95em; outline: none; transition: border-color 0.3s; }
+.select-curso { padding: 8px 35px 8px 15px; border-radius: 8px; border: 2px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); font-size: 1.05em; font-weight: bold; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto; transition: border-color 0.3s; box-sizing: border-box; height: 42px; min-width: 150px; line-height: 1.2; }
 .select-curso:focus { border-color: var(--primary-color); }
 
 /* Grid del Horario Semanal */
@@ -18,7 +18,7 @@
 .grid-cell:nth-child(6n) { border-right: none; } /* Quita borde derecho a la última celda de cada fila normal */
 
 /* Cabeceras de columnas */
-.grid-header { background-color: var(--sidebar-bg); color: var(--sidebar-text); font-weight: bold; text-align: center; text-transform: uppercase; font-size: 0.85em; min-height: 50px; border-bottom: 2px solid var(--border-color); letter-spacing: 1px; }
+.grid-header { background-color: var(--primary-hover); color: #ffffff; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 0.85em; min-height: 50px; border-bottom: 2px solid var(--border-color); letter-spacing: 1px; }
 
 /* Columna de Horas */
 .grid-time { font-weight: bold; color: var(--text-color); background-color: var(--bg-color); border-right: 2px solid var(--border-color) !important; font-size: 0.85em; }

@@ -41,10 +41,8 @@ if ($http_code == 200) {
     header("Location: ../dashboard.php");
     exit();
 } else {
-    // Si falla, mostramos el error
-    echo "<h1>Error de acceso (Código: $http_code)</h1>";
-    echo "<p>Respuesta de la API: $respuesta</p>";
-    // CAMBIO: Salimos de 'acciones/' para llegar a 'index.php'
-    echo "<br><a href='../index.php'>Volver al login</a>";
+    // CAMBIO: Redirigimos de vuelta al index con un parámetro de error
+    header("Location: ../index.php?error=login");
+    exit();
 }
 ?>

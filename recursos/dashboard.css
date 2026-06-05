@@ -31,7 +31,7 @@
 .calendar-day.today { background: #2c3e50; color: white; font-weight: bold; }
 .calendar-day.today:hover { background: #1a252f; }
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
-.modal-content { background-color: white; padding: 30px; border-radius: 10px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+.modal-content { background-color: white; padding: 30px; border-radius: 10px; width: 400px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .modal-header { border-bottom: 2px solid #f1f1f1; margin-bottom: 20px; padding-bottom: 10px; }
 .modal-header h3 { margin: 0; color: #2c3e50; }
 .form-group { margin-bottom: 20px; }

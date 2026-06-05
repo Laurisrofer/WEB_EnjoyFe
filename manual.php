@@ -11,6 +11,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="recursos/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual de usuario - Enjoyfe</title>
     <link rel="stylesheet" href="recursos/estilos.css?v=1.2">
@@ -46,7 +47,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
         <div class="manual-header">
             <div class="manual-title">
                 <h1>Manual de usuario</h1>
-                <p>Guía de uso oficial del portal educativo Enjoyfe / Joyfe</p>
+                <p>Guía de uso oficial del portal educativo EnjoyFe</p>
             </div>
             <button class="btn-print" onclick="window.print()">
                 Guardar en PDF
@@ -56,7 +57,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
         <!-- SECCIÓN 1: INTRODUCCIÓN -->
         <div id="introduccion" class="section-block">
             <h2>1. Introducción</h2>
-            <p>El portal académico de <strong>Joyfe</strong> es una plataforma web integrada diseñada para facilitar la comunicación, el seguimiento docente, la gestión del calendario escolar y la consulta de calificaciones para toda nuestra comunidad educativa.</p>
+            <p>El portal académico de <strong>EnjoyFe</strong> es una plataforma web integrada diseñada para facilitar la comunicación, el seguimiento docente, la gestión del calendario escolar y la consulta de calificaciones para toda nuestra comunidad educativa.</p>
             <p>Este sistema adapta su aspecto, colores y herramientas en función del rol de la persona que acceda:</p>
             <ul>
                 <li><strong>Alumnos (Verde):</strong> Acceso a asignaturas, descarga de materiales de Classroom/Drive, consulta de faltas, notas y agenda personal.</li>
@@ -163,5 +164,6 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
     });
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>

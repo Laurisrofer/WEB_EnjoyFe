@@ -27,7 +27,8 @@ class CursoRepository:
         try:
             nuevo_curso = Curso(
                 nombre=datos_curso['nombre'],# type: ignore
-                descripcion=datos_curso.get('descripcion', '')# type: ignore
+                descripcion=datos_curso.get('descripcion', ''),# type: ignore
+                id_tutor=datos_curso.get('id_tutor')# type: ignore
             ) # type: ignore
             db.session.add(nuevo_curso)
             db.session.flush()
@@ -70,6 +71,7 @@ class CursoRepository:
             # 1. Actualizar datos base del curso
             if 'nombre' in datos_curso: curso.nombre = datos_curso['nombre']
             if 'descripcion' in datos_curso: curso.descripcion = datos_curso['descripcion']
+            if 'id_tutor' in datos_curso: curso.id_tutor = datos_curso['id_tutor']
 
             # 2. Si vienen asignaturas, hacemos "borrón y cuenta nueva"
             if 'asignaturas' in datos_curso:

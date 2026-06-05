@@ -7,6 +7,9 @@ class Asignatura(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     id_curso = db.Column(db.Integer, db.ForeignKey('cursos.id'), nullable=False)
     id_profesor = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    guia_docente = db.Column(db.Text, nullable=True)
+    recursos_json = db.Column(db.Text, nullable=True)
+    color = db.Column(db.String(20), default='#3498db')
     
     # --- RELACIONES EXPLÍCITAS ---
     
@@ -24,8 +27,11 @@ class Asignatura(db.Model):
         return {
             "id": self.id,
             "nombre": self.nombre,
-            "profesor_id": self.id_profesor,
+            "id_profesor": self.id_profesor,
             "nombre_profesor": nombre_prof,
+            "guia_docente": self.guia_docente,
+            "recursos_json": self.recursos_json,
+            "color": self.color,
             # Ahora 'self.horarios' existe físicamente en esta clase
-            "horario": [h.to_dict() for h in self.horarios] # type: ignore
+            "horarios": [h.to_dict() for h in self.horarios] # type: ignore
         }

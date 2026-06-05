@@ -134,6 +134,8 @@ body {
     flex-direction: column; 
     overflow-y: auto; 
     height: 100vh; 
+    padding-bottom: 70px;
+    box-sizing: border-box;
 }
 .header { 
     background: var(--header-bg); 

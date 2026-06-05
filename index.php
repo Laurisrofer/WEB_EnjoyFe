@@ -1,3 +1,6 @@
+<?php
+$mostrarError = isset($_GET['error']) && $_GET['error'] === 'login';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,8 +8,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso - Enjoyfe</title>
     <link rel="stylesheet" href="recursos/login.css">
+    <style>
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: white; padding: 25px 30px; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; max-width: 400px; width: 90%;
+        }
+        .modal-box h2 { margin-top: 0; color: #d32f2f; }
+        .modal-box p { color: #555; margin-bottom: 20px; line-height: 1.5; }
+        .modal-btn {
+            background: #d32f2f; color: white; border: none; padding: 10px 20px;
+            border-radius: 6px; cursor: pointer; font-size: 16px; transition: background 0.2s;
+        }
+        .modal-btn:hover { background: #b71c1c; }
+    </style>
 </head>
 <body>
+
+    <?php if ($mostrarError): ?>
+    <div class="modal-overlay" id="errorModal">
+        <div class="modal-box">
+            <h2>Error de acceso</h2>
+            <p>El usuario y/o la contraseña introducidos no son correctos.<br>Por favor, inténtalo de nuevo.</p>
+            <button class="modal-btn" onclick="document.getElementById('errorModal').style.display='none'">Aceptar</button>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="login-container">
         <h1>Bienvenido a Enjoyfe</h1>
@@ -26,5 +57,6 @@
         </form>
     </div>
 
+    <?php include 'componentes/footer.php'; ?>
 </body>
 </html>

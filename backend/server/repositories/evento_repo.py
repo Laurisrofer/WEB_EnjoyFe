@@ -27,9 +27,13 @@ class EventoRepository:
             return False
 
     @staticmethod
-    def borrar_evento(id_evento, id_usuario):
-        # Buscamos el evento y nos aseguramos de que pertenezca al usuario
-        evento = Evento.query.filter_by(id=id_evento, id_usuario=id_usuario).first()
+    def borrar_evento(id_evento, id_usuario, rol_usuario=''):
+        # Buscamos el evento y nos aseguramos de que pertenezca al usuario (o admin puede todos)
+        if rol_usuario == 'admin':
+            evento = Evento.query.filter_by(id=id_evento).first()
+        else:
+            evento = Evento.query.filter_by(id=id_evento, id_usuario=id_usuario).first()
+            
         if evento:
             db.session.delete(evento)
             db.session.commit()
@@ -37,7 +41,10 @@ class EventoRepository:
         return False
     
     @staticmethod
-    def obtener_eventos_dashboard(usuario_id, id_curso):
+    def obtener_eventos_dashboard(usuario_id, id_curso, rol_usuario=''):
+        if rol_usuario == 'admin':
+            return Evento.query.all()
+            
         # Buscamos eventos que sean del usuario (personales) 
         # O que sean del curso (exámenes/entregas generales)
         # O anuncios globales del centro
@@ -59,15 +66,27 @@ class EventoRepository:
         ).all()
     
     @staticmethod
-    def actualizar_evento(id_evento, datos_evento, id_usuario):
-        # Buscamos el evento que pertenezca al usuario
-        evento = Evento.query.filter_by(id=id_evento, id_usuario=id_usuario).first()
+    def actualizar_evento(id_evento, datos_evento, id_usuario, rol_usuario=''):
+        # Buscamos el evento que pertenezca al usuario o admin
+        if rol_usuario == 'admin':
+            evento = Evento.query.filter_by(id=id_evento).first()
+        else:
+            evento = Evento.query.filter_by(id=id_evento, id_usuario=id_usuario).first()
+            
         if evento:
             # Actualizamos solo si los datos vienen en el JSON
             evento.titulo = datos_evento.get('titulo', evento.titulo)
             evento.fecha = datos_evento.get('fecha', evento.fecha)
             evento.hora = datos_evento.get('hora', evento.hora)
             evento.tipo = datos_evento.get('tipo', evento.tipo)
+            
+            # Nuevos campos
+            if 'descripcion' in datos_evento:
+                evento.descripcion = datos_evento['descripcion']
+            if 'id_curso' in datos_evento:
+                # Si el id_curso viene como string vacío, lo guardamos como None (Global)
+                val_curso = datos_evento['id_curso']
+                evento.id_curso = None if val_curso == '' else val_curso
             
             db.session.commit()
             return True

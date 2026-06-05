@@ -28,6 +28,24 @@ $rol = ucfirst($perfil_data['rol'] ?? 'Alumno');
 $curso = $perfil_data['curso'] ?? 'Sin curso';
 $dni = $perfil_data['dni'] ?? 'No especificado';
 $email = $perfil_data['email'] ?? 'No especificado';
+$tutoria = $perfil_data['tutoria'] ?? 'Ninguna';
+
+$cursos_profesor = [];
+if (strtolower($rol) === 'profesor') {
+    $url_cursos = "http://127.0.0.1:5000/academico/mis-cursos";
+    $ch_cursos = curl_init($url_cursos);
+    curl_setopt($ch_cursos, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch_cursos, CURLOPT_HTTPGET, true);
+    curl_setopt($ch_cursos, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $_SESSION['token'],
+        'Content-Type: application/json'
+    ]);
+    $res_cursos = curl_exec($ch_cursos);
+    if (curl_getinfo($ch_cursos, CURLINFO_HTTP_CODE) == 200) {
+        $cursos_profesor = json_decode($res_cursos, true);
+    }
+    curl_close($ch_cursos);
+}
 
 // --- CONFIGURACIÓN DEL HEADER ---
 $pagina_id = 'perfil';
@@ -48,10 +66,38 @@ include 'componentes/header.php';
                 <div id="caja_notificacion" class="notificacion"></div>
 
                 <div class="seccion-titulo">Datos personales</div>
-                <div class="form-group">
-                    <label>Curso actual</label>
-                    <input type="text" class="input-readonly" value="<?php echo htmlspecialchars($curso); ?>" readonly>
-                </div>
+                <?php if (strtolower($rol) === 'admin'): ?>
+                    <div class="form-group">
+                        <label>Rol del sistema</label>
+                        <input type="text" class="input-readonly" value="Administrador del sistema" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Permisos</label>
+                        <input type="text" class="input-readonly" value="Altas, bajas y modificaciones de usuarios, cursos y asignaturas" readonly>
+                    </div>
+                <?php elseif (strtolower($rol) === 'profesor'): ?>
+                    <div class="form-group">
+                        <label>Tutoría asignada</label>
+                        <input type="text" class="input-readonly" value="<?php echo htmlspecialchars($tutoria); ?>" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Mis cursos impartidos</label>
+                        <?php if (empty($cursos_profesor)): ?>
+                            <input type="text" class="input-readonly" value="No se han asignado cursos" readonly>
+                        <?php else: ?>
+                            <ul class="input-readonly" style="list-style-type:disc; margin:0; padding-left:30px; padding-top:10px; padding-bottom:10px; min-height:42px;">
+                                <?php foreach ($cursos_profesor as $cp): ?>
+                                    <li><?php echo htmlspecialchars($cp['nombre']); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="form-group">
+                        <label>Curso actual</label>
+                        <input type="text" class="input-readonly" value="<?php echo htmlspecialchars($curso); ?>" readonly>
+                    </div>
+                <?php endif; ?>
                 <div class="form-group">
                     <label>DNI / NIE</label>
                     <input type="text" class="input-readonly" value="<?php echo htmlspecialchars($dni); ?>" readonly>
@@ -112,7 +158,6 @@ include 'componentes/header.php';
                 contrasena_repetida: valor_pass_repe
             };
 
-            // CAMBIO: Apunta a la carpeta acciones
             fetch('acciones/actualizar_perfil.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -133,5 +178,6 @@ include 'componentes/header.php';
             });
         }
     </script>
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>

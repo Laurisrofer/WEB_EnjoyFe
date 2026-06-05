@@ -74,7 +74,7 @@ include 'componentes/header.php';
                 <div class="faq-item">
                     <button class="faq-question">¿Por qué mi panel de control cambia de color?</button>
                     <div class="faq-answer">
-                        <p>El portal académico cuenta con una tematización visual basada en roles que facilita la identificación de permisos: el color <strong>verde</strong> está asignado a los alumnos (coincidente con los colores de Joyfe), el <strong>azul</strong> a los profesores y el <strong>rojo</strong> a los administradores. Los botones, barras laterales y elementos de enfoque variarán su color dinámicamente de acuerdo a tu rol de inicio de sesión.</p>
+                        <p>El portal académico cuenta con una tematización visual basada en roles que facilita la identificación de permisos: el color <strong>verde</strong> está asignado a los alumnos (coincidente con los colores de EnjoyFe), el <strong>azul</strong> a los profesores y el <strong>rojo</strong> a los administradores. Los botones, barras laterales y elementos de enfoque variarán su color dinámicamente de acuerdo a tu rol de inicio de sesión.</p>
                     </div>
                 </div>
 
@@ -90,7 +90,7 @@ include 'componentes/header.php';
                 <div class="faq-item">
                     <button class="faq-question">¿Por qué las asignaturas tienen profesores distintos ahora?</button>
                     <div class="faq-answer">
-                        <p>Hemos actualizado la asignación de materias en la base de datos de Joyfe. Anteriormente, el tutor del curso aparecía como docente en todas las asignaturas por defecto. Ahora, las asignaturas se han distribuido equitativamente entre los diferentes profesores disponibles en la plataforma para reflejar un claustro docente realista y balanceado.</p>
+                        <p>Hemos actualizado la asignación de materias en la base de datos de EnjoyFe. Anteriormente, el tutor del curso aparecía como docente en todas las asignaturas por defecto. Ahora, las asignaturas se han distribuido equitativamente entre los diferentes profesores disponibles en la plataforma para reflejar un claustro docente realista y balanceado.</p>
                     </div>
                 </div>
 
@@ -99,6 +99,22 @@ include 'componentes/header.php';
                     <button class="faq-question">¿Cómo sé si tengo un nuevo anuncio del centro?</button>
                     <div class="faq-answer">
                         <p>El tablón de anuncios del panel de control se actualiza de forma automática. Cuando un docente o administrador publique un anuncio general o para tu curso, aparecerá un aviso flotante rojo en la esquina superior derecha indicando la publicación del nuevo anuncio para que no te pierdas ninguna circular del colegio.</p>
+                    </div>
+                </div>
+
+                <!-- Pregunta 9 (Profesor) -->
+                <div class="faq-item">
+                    <button class="faq-question">¿Cómo puedo calificar o registrar la asistencia de mis alumnos?</button>
+                    <div class="faq-answer">
+                        <p>Como profesor, puedes gestionar la asistencia accediendo a la sección <strong>Asistencias</strong> del menú lateral. Selecciona el curso y la fecha, y marca el estado de cada alumno (Presente, Falta o Retraso). Para añadir calificaciones, ve a <strong>Notas</strong>, selecciona el curso y la asignatura, y añade las calificaciones que correspondan. Estas se guardarán automáticamente en el expediente de cada estudiante.</p>
+                    </div>
+                </div>
+
+                <!-- Pregunta 10 (Admin) -->
+                <div class="faq-item">
+                    <button class="faq-question">¿Cómo administro a los usuarios y sus permisos?</button>
+                    <div class="faq-answer">
+                        <p>Como administrador del sistema, dispones de herramientas exclusivas en el menú lateral. En <strong>Gestión de usuarios</strong> puedes crear, editar contraseñas o eliminar alumnos y profesores (siempre que no tengan datos dependientes). En <strong>Cursos</strong> y <strong>Asignaturas</strong> puedes estructurar el currículo académico asignando qué profesores imparten cada materia y designando tutores para cada grupo.</p>
                     </div>
                 </div>
 
@@ -130,5 +146,6 @@ include 'componentes/header.php';
     });
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>

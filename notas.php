@@ -20,8 +20,6 @@ include 'componentes/header.php';
         <p class="boletin-subtitulo" id="boletin_subtitulo">
             <?php if ($rol_usuario === 'alumno'): ?>
                 Cargando curso matriculado...
-            <?php else: ?>
-                Consola de calificaciones para docentes y administración. Registra notas de entregas individuales por alumno o actividades globales por curso.
             <?php endif; ?>
         </p>
     </div>
@@ -79,8 +77,11 @@ include 'componentes/header.php';
 
             <!-- PESTAÑA 1: CALIFICAR POR ALUMNO -->
             <div id="tab_alumno" class="view-container active">
-                <div class="student-select-list" id="student_bubbles_container">
-                    <!-- Burbujas de alumnos cargadas dinámicamente -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="student_select_dropdown" style="font-weight:bold; margin-right: 10px;">Selecciona un alumno:</label>
+                    <select id="student_select_dropdown" onchange="if(this.value) { seleccionarAlumnoWorkspace(parseInt(this.value)); }" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color);">
+                        <option value="">-- Elige un alumno --</option>
+                    </select>
                 </div>
 
                 <div id="grade_student_workspace" style="display: none;">
@@ -128,7 +129,7 @@ include 'componentes/header.php';
                                         </div>
                                         <div class="form-col">
                                             <label for="calif_nota">Calificación (0-10):</label>
-                                            <input type="number" id="calif_nota" required step="0.01" min="0" max="10" placeholder="Ej: 8.5">
+                                            <input type="number" id="calif_nota" required step="0.25" min="0" max="10" placeholder="Ej: 8.5" class="input-no-spinners">
                                         </div>
                                     </div>
                                     <div class="form-col" style="margin-bottom: 15px;">
@@ -136,7 +137,7 @@ include 'componentes/header.php';
                                         <input type="date" id="calif_fecha" required>
                                     </div>
                                     <div class="form-col" style="margin-bottom: 20px;">
-                                        <label for="calif_comentario">Comentario / Feedback:</label>
+                                        <label for="calif_comentario">Comentario:</label>
                                         <textarea id="calif_comentario" rows="3" placeholder="Comentarios sobre la corrección..."></textarea>
                                     </div>
                                     <div style="display: flex; gap: 10px;">
@@ -152,12 +153,12 @@ include 'componentes/header.php';
                                 <form onsubmit="guardarNotaFinal(event)">
                                     <div class="form-row">
                                         <div class="form-col">
-                                            <label for="final_nota">Nota final de curso:</label>
-                                            <input type="number" id="final_nota" step="0.1" min="0" max="10" placeholder="Aún sin evaluar">
+                                            <label>Nota obtenida</label>
+                                            <input type="number" id="final_nota" step="0.25" min="0" max="10" placeholder="Ej: 7.50" class="input-no-spinners">
                                         </div>
                                     </div>
                                     <div class="form-col" style="margin-bottom: 20px;">
-                                        <label for="final_obs">Observaciones globales del boletín:</label>
+                                        <label for="final_obs">Observaciones globales:</label>
                                         <textarea id="final_obs" rows="3" placeholder="Resumen del rendimiento del alumno en el curso..."></textarea>
                                     </div>
                                     <button type="submit" class="btn-action" style="width: 100%;">Guardar acta final</button>
@@ -200,7 +201,7 @@ include 'componentes/header.php';
                                     <tr>
                                         <th>Alumno</th>
                                         <th style="width: 150px;">Nota (0-10)</th>
-                                        <th>Comentario de feedback</th>
+                                        <th>Comentario</th>
                                     </tr>
                                 </thead>
                                 <tbody id="grupo_alumnos_tbody">
@@ -478,32 +479,27 @@ include 'componentes/header.php';
 
     // --- PESTAÑA 1: CALIFICAR POR ALUMNO ---
     function poblarAlumnosAsignatura() {
-        const container = document.getElementById('student_bubbles_container');
+        const select = document.getElementById('student_select_dropdown');
         const alumnos = getAlumnosActuales();
         
         if (alumnos.length === 0) {
-            container.innerHTML = '<div style="color:var(--text-muted); font-style:italic;">No hay alumnos matriculados en esta asignatura.</div>';
+            select.innerHTML = '<option value="">No hay alumnos matriculados</option>';
+            select.disabled = true;
             document.getElementById('grade_student_workspace').style.display = 'none';
             return;
         }
 
-        container.innerHTML = alumnos.map(a => `
-            <div class="student-bubble" id="student_bubble_${a.id_matricula}" onclick="seleccionarAlumnoWorkspace(${a.id_matricula})">
-                ${escapeHtml(a.nombre)}
-            </div>
-        `).join('');
+        select.disabled = false;
+        select.innerHTML = '<option value="">-- Elige un alumno --</option>' + 
+            alumnos.map(a => `<option value="${a.id_matricula}">${escapeHtml(a.nombre)}</option>`).join('');
 
-        // Seleccionar automáticamente al primer alumno
-        seleccionarAlumnoWorkspace(alumnos[0].id_matricula);
+        // Ocultar workspace hasta que seleccione
+        document.getElementById('grade_student_workspace').style.display = 'none';
     }
 
     function seleccionarAlumnoWorkspace(idMatricula) {
         selectedMatriculaId = idMatricula;
-        
-        // Marcar burbuja activa
-        document.querySelectorAll('.student-bubble').forEach(b => b.classList.remove('active'));
-        const activeBubble = document.getElementById(`student_bubble_${idMatricula}`);
-        if (activeBubble) activeBubble.classList.add('active');
+        document.getElementById('student_select_dropdown').value = idMatricula;
         
         document.getElementById('grade_student_workspace').style.display = 'block';
 
@@ -545,6 +541,7 @@ include 'componentes/header.php';
                     <td style="font-size:0.85em; color:var(--text-muted);">${escapeHtml(c.comentario) || '-'}</td>
                     <td>
                         <button onclick="prepararEdicionNota(${c.id}, '${escapeHtml(cleanName).replace(/'/g, "\\'")}', '${evalLabel}', ${c.nota}, '${escapeHtml(c.comentario).replace(/'/g, "\\'")}', '${c.fecha}')" style="background:none; border:none; cursor:pointer;" title="Editar">✏️</button>
+                        <button onclick="eliminarNota(${c.id})" style="background:none; border:none; cursor:pointer; margin-left: 5px;" title="Eliminar">❌</button>
                     </td>
                 </tr>
             `;
@@ -623,6 +620,26 @@ include 'componentes/header.php';
         });
     }
 
+    function eliminarNota(idCalif) {
+        mostrarConfirmacionGlobal('Eliminar calificación', '¿Estás seguro de que deseas eliminar esta calificación?', () => {
+            fetch(`acciones/gestion_notas.php?action=delete_calif&id=${idCalif}`)
+            .then(res => {
+                if (res.ok) {
+                    showToast("Calificación eliminada correctamente", "success");
+                    recargarCalificacionesYActualizar(() => {
+                        if (selectedMatriculaId) seleccionarAlumnoWorkspace(selectedMatriculaId);
+                    });
+                } else {
+                    showToast("Error al eliminar la calificación", "danger");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast("Error de conexión", "danger");
+            });
+        });
+    }
+
     function guardarNotaFinal(e) {
         e.preventDefault();
         const notaInput = document.getElementById('final_nota').value;
@@ -671,13 +688,13 @@ include 'componentes/header.php';
         }
 
         tbody.innerHTML = alumnos.map(a => `
-            <tr>
+            <tr data-id-matricula="${a.id_matricula}">
                 <td><strong>${escapeHtml(a.nombre)}</strong></td>
                 <td>
-                    <input type="number" class="grupo-nota-input" data-matricula="${a.id_matricula}" step="0.01" min="0" max="10" placeholder="Nota (0-10)" style="width:110px; padding:6px; border-radius:4px; border:1px solid var(--input-border); background-color:var(--input-bg); color:var(--text-color);">
+                    <input type="number" class="nota-grupo-input input-no-spinners" step="0.25" min="0" max="10" placeholder="-" value="" style="width:110px; padding:6px; border-radius:4px; border:1px solid var(--input-border); background-color:var(--input-bg); color:var(--text-color);">
                 </td>
                 <td>
-                    <input type="text" class="grupo-comentario-input" data-matricula="${a.id_matricula}" placeholder="Comentarios..." style="width:100%; max-width:400px; padding:6px; border-radius:4px; border:1px solid var(--input-border); background-color:var(--input-bg); color:var(--text-color);">
+                    <input type="text" class="comentario-grupo-input" placeholder="Comentarios..." value="" style="width:100%; max-width:400px; padding:6px; border-radius:4px; border:1px solid var(--input-border); background-color:var(--input-bg); color:var(--text-color);">
                 </td>
             </tr>
         `).join('');
@@ -775,6 +792,7 @@ include 'componentes/header.php';
     <?php endif; ?>
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>
 

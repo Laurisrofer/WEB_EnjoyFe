@@ -370,3 +370,13 @@
     color: var(--text-muted);
     font-style: italic;
 }
+
+/* Ocultar flechas numéricas (spinners) para inputs de notas */
+.input-no-spinners::-webkit-outer-spin-button,
+.input-no-spinners::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.input-no-spinners {
+    -moz-appearance: textfield;
+}

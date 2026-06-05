@@ -49,6 +49,7 @@ include 'componentes/header.php';
             <div class="seccion-titulo">Preferencias de notificaciones</div>
 
             <!-- Switch Notas -->
+            <?php if ($_SESSION['rol'] !== 'profesor' && $_SESSION['rol'] !== 'admin'): ?>
             <div class="switch-container">
                 <div>
                     <div class="switch-label">Calificaciones de asignaturas</div>
@@ -56,6 +57,19 @@ include 'componentes/header.php';
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="notif_notes_toggle" onchange="togglePreference('notif_notes', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <?php endif; ?>
+
+            <!-- Switch Anuncios -->
+            <div class="switch-container">
+                <div>
+                    <div class="switch-label">Anuncios del centro</div>
+                    <div class="switch-subtext">Recibir avisos cuando se publiquen noticias y avisos en el tablón.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="notif_anuncios_toggle" onchange="togglePreference('notif_anuncios', this.checked)">
                     <span class="slider"></span>
                 </label>
             </div>
@@ -73,37 +87,26 @@ include 'componentes/header.php';
             </div>
 
             <!-- Switch Asistencias -->
+            <?php if ($_SESSION['rol'] !== 'admin'): ?>
             <div class="switch-container">
                 <div>
                     <div class="switch-label">Faltas de asistencia</div>
-                    <div class="switch-subtext">Recibir avisos de faltas o retrasos registrados por tus profesores.</div>
+                    <div class="switch-subtext">
+                        <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'profesor'): ?>
+                            Recibir avisos de faltas o retrasos registrados de tus alumnos.
+                        <?php else: ?>
+                            Recibir avisos de faltas o retrasos registrados por tus profesores.
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="notif_attendance_toggle" onchange="togglePreference('notif_attendance', this.checked)">
                     <span class="slider"></span>
                 </label>
             </div>
+            <?php endif; ?>
         </div>
 
-        <!-- GRUPO 3: HISTORIAL DE ACCESOS -->
-        <div class="grupo-ajustes">
-            <div class="seccion-titulo">Historial de accesos recientes</div>
-            <p class="log-help">Registro de seguridad de los últimos inicios de sesión en tu cuenta.</p>
-            
-            <div class="table-responsive"><table class="log-table">
-                <thead>
-                    <tr>
-                        <th>Fecha y hora</th>
-                        <th>Detalle / acción</th>
-                        <th>Dirección IP</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="access_log_body">
-                    <!-- Rellenado por JS dinámicamente -->
-                </tbody>
-            </table></div>
-        </div>
     </div>
 </div>
 
@@ -119,15 +122,16 @@ include 'componentes/header.php';
         document.getElementById('fontsize_select').value = currentFontSize;
 
         // 3. Preferencias de Notificaciones (Por defecto true)
+        <?php if ($_SESSION['rol'] !== 'profesor'): ?>
         const notesEnabled = localStorage.getItem('notif_notes') !== 'false';
+        document.getElementById('notif_notes_toggle').checked = notesEnabled;
+        <?php endif; ?>
         const msgEnabled = localStorage.getItem('notif_msg') !== 'false';
         const attendanceEnabled = localStorage.getItem('notif_attendance') !== 'false';
-        document.getElementById('notif_notes_toggle').checked = notesEnabled;
+        const anunciosEnabled = localStorage.getItem('notif_anuncios') !== 'false';
         document.getElementById('notif_msg_toggle').checked = msgEnabled;
         document.getElementById('notif_attendance_toggle').checked = attendanceEnabled;
-
-        // 4. Generar historial de accesos
-        generarLogAccesos();
+        document.getElementById('notif_anuncios_toggle').checked = anunciosEnabled;
     });
 
     // Cambiar Tema
@@ -150,32 +154,8 @@ include 'componentes/header.php';
     }
 
     // Generar logs simulados de accesos
-    function generarLogAccesos() {
-        const tbody = document.getElementById('access_log_body');
-        const hoy = new Date();
-        
-        const formatearFecha = (date, minsOffset) => {
-            const d = new Date(date.getTime() - minsOffset * 60 * 1000);
-            return d.toLocaleDateString('es-ES') + ' ' + d.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-        };
-
-        const logs = [
-            { fecha: formatearFecha(hoy, 0), detalle: "Inicio de sesión (Este dispositivo)", ip: "127.0.0.1", estado: "Activo" },
-            { fecha: formatearFecha(hoy, 180), detalle: "Inicio de sesión (Chrome / Windows)", ip: "127.0.0.1", estado: "Cerrado" },
-            { fecha: formatearFecha(hoy, 1440), detalle: "Inicio de sesión (Firefox / Windows)", ip: "192.168.1.45", estado: "Cerrado" }
-        ];
-
-        tbody.innerHTML = logs.map(l => `
-            <tr>
-                <td>${l.fecha}</td>
-                <td>${l.detalle}</td>
-                <td class="ip-address">${l.ip}</td>
-                <td class="${l.estado === 'Activo' ? 'log-status-active' : 'log-status-inactive'}">${l.estado}</td>
-            </tr>
-        `).join('');
-    }
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>
-

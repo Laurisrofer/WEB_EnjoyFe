@@ -475,5 +475,6 @@ include 'componentes/header.php';
     });
 </script>
 
+<?php include 'componentes/footer.php'; ?>
 </body>
 </html>
