@@ -8,7 +8,7 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
     <link rel="icon" type="image/png" href="recursos/favicon.png">
     <meta charset="UTF-8">
     <title>Enjoyfe</title>
-    <link rel="stylesheet" href="recursos/estilos.css?v=1.2">
+    <link rel="stylesheet" href="recursos/estilos.css?v=1.3">
     
     <script>
         // Aplicar tema oscuro inmediatamente antes de pintar para evitar destello blanco

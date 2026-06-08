@@ -7,6 +7,7 @@ $mostrarError = isset($_GET['error']) && $_GET['error'] === 'login';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso - Enjoyfe</title>
+    <link rel="icon" type="image/png" href="recursos/favicon.png">
     <link rel="stylesheet" href="recursos/login.css">
     <style>
         .modal-overlay {
@@ -40,7 +41,10 @@ $mostrarError = isset($_GET['error']) && $_GET['error'] === 'login';
     <?php endif; ?>
 
     <div class="login-container">
-        <h1>Bienvenido a Enjoyfe</h1>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="recursos/logo_enjoyfe.png" alt="Logo Enjoyfe" style="max-width: 150px; height: auto;">
+        </div>
+        <h1 style="text-align: center;">Bienvenido a Enjoyfe</h1>
         
         <form action="acciones/procesar_login.php" method="POST">
             <div class="form-group">

@@ -21,7 +21,7 @@
 }
 
 /* --- VARIABLES PARA TEMA OSCURO --- */
-[data-theme="dark"] {
+html[data-theme="dark"] {
     --bg-color: #121212;
     --text-color: #f1f5f9;
     --card-bg: #1e1e1e;
@@ -62,22 +62,19 @@ body.role-admin {
 }
 
 /* --- COLORES POR ROL (TEMA OSCURO) --- */
-[data-theme="dark"].role-alumno,
-[data-theme="dark"] .role-alumno {
+html[data-theme="dark"] body.role-alumno {
     --primary-color: #2ecc71;
     --primary-hover: #27ae60;
     --sidebar-bg: #0d1e16;
     --sidebar-border: #153325;
 }
-[data-theme="dark"].role-profesor,
-[data-theme="dark"] .role-profesor {
+html[data-theme="dark"] body.role-profesor {
     --primary-color: #3b82f6;
     --primary-hover: #2563eb;
     --sidebar-bg: #0f172a;
     --sidebar-border: #1e293b;
 }
-[data-theme="dark"].role-admin,
-[data-theme="dark"] .role-admin {
+html[data-theme="dark"] body.role-admin {
     --primary-color: #ef4444;
     --primary-hover: #dc2626;
     --sidebar-bg: #210d0d;
@@ -241,19 +238,21 @@ body {
     border-bottom: 2px solid var(--border-color) !important;
 }
 table {
-    background: var(--card-bg) !important;
-    box-shadow: 0 4px 6px var(--shadow-color) !important;
+    background: var(--card-bg);
+    box-shadow: 0 4px 6px var(--shadow-color);
     color: var(--text-color);
 }
 th {
-    background-color: var(--sidebar-bg) !important;
-    color: var(--sidebar-text) !important;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
 }
 td {
-    border-bottom: 1px solid var(--border-color) !important;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-color);
 }
 tr:hover {
-    background-color: var(--bg-color) !important;
+    background-color: var(--bg-color);
 }
 .cabecera-asignatura {
     background: var(--card-bg) !important;
@@ -740,6 +739,201 @@ body.role-admin .notif-item.unread {
         padding: 8px 12px;
         font-size: 0.9em;
     }
+.notif-item-time {
+    font-size: 0.8em;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+.notif-item-action {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1em;
+}
+.notif-item-action:hover {
+    color: var(--primary-color);
+}
+.notif-empty {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* --- MODAL DE NOTIFICACIONES --- */
+.modal-notif {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+.modal-notif.show {
+    display: flex;
+}
+.modal-notif-content {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 550px;
+    box-shadow: 0 15px 35px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    animation: modalSlideUp 0.3s ease-out;
+}
+@keyframes modalSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.modal-notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.modal-notif-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.modal-notif-close {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    line-height: 1;
+}
+.modal-notif-close:hover {
+    color: var(--text-color);
+}
+.modal-notif-content h2 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.6em;
+    color: var(--text-color);
+}
+.modal-notif-meta {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.modal-notif-body {
+    line-height: 1.6;
+    font-size: 1em;
+    color: var(--text-color);
+    margin-bottom: 25px;
+    white-space: pre-wrap; /* Mantiene saltos de línea del anuncio */
+}
+.modal-notif-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+.btn-modal-close {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.btn-modal-close:hover {
+    background-color: var(--primary-hover);
+}
+
+/* =========================================
+   DISEO RESPONSIVE (MOBILE FIRST)
+   ========================================= */
+
+/* Ocultar botn hamburguesa y overlay en escritorio */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text-color);
+    margin-right: 15px;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+.sidebar-overlay.show {
+    display: block;
+}
+
+/* Tablas responsive */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    /* Mostrar hamburguesa */
+    .hamburger-btn {
+        display: block;
+    }
+
+    /* Sidebar oculta por defecto en mviles, entra deslizando */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        transition: left 0.3s ease;
+    }
+    
+    .sidebar.open {
+        left: 0;
+    }
+
+    /* Ajustes generales de la cabecera */
+    .header {
+        padding: 10px 15px;
+    }
+    .header-title {
+        font-size: 1.2em;
+    }
+
+    /* Ajustes del contenedor principal */
+    .main {
+        padding: 15px;
+    }
+
+    /* Ajustes de cuadrculas del dashboard */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Reducir fuentes de botones */
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
 
     /* Mensajera responsive */
     .mensajeria-layout {
@@ -755,4 +949,3 @@ body.role-admin .notif-item.unread {
         width: 100%;
     }
 }
-

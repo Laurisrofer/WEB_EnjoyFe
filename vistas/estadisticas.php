@@ -1,4 +1,250 @@
-let datosNotas = null;
+<?php
+session_start();
+
+if (!isset($_SESSION['nombre_usuario']) || !isset($_SESSION['token'])) {
+    header("Location: index.php");
+    exit();
+}
+
+$pagina_id = 'estadisticas';
+$titulo_seccion = 'Estadísticas';
+$rol_usuario = $_SESSION['rol'];
+
+include __DIR__ . '/../componentes/header.php';
+?>
+
+<div class="contenedor-datos">
+    <?php if ($rol_usuario === 'admin'): ?>
+        <div class="card-resumen">
+            <h2>Salud del centro</h2>
+            <p style="color:var(--text-muted);">Métricas globales de la plataforma.</p>
+        </div>
+        <div id="loading_stats" class="loading-indicator">Cargando métricas globales...</div>
+        
+        <div id="admin_stats_container" style="display: none; margin-top: 25px;">
+            <div class="roscos-grid">
+                <div class="rosco-card">
+                    <h3>Usuarios</h3>
+                    <div style="font-size: 2em; text-align: center; color: var(--primary-color); margin: 20px 0;">
+                        <span id="admin_alumnos">0</span> <span style="font-size: 0.5em; color: var(--text-muted);">Alumnos</span>
+                    </div>
+                    <div style="font-size: 2em; text-align: center; color: var(--primary-color); margin: 20px 0;">
+                        <span id="admin_profes">0</span> <span style="font-size: 0.5em; color: var(--text-muted);">Profesores</span>
+                    </div>
+                </div>
+                
+                <div class="rosco-card">
+                    <h3>Cursos Activos</h3>
+                    <div style="font-size: 3em; text-align: center; color: var(--primary-color); margin: 30px 0;">
+                        <span id="admin_cursos">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px;">
+                <div class="chart-container" style="background: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px var(--shadow-color);">
+                    <h3 style="text-align:center; margin-top:0;">Distribución de Usuarios</h3>
+                    <canvas id="chartUsuarios"></canvas>
+                </div>
+                
+                <div class="chart-container" style="background: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px var(--shadow-color);">
+                    <h3 style="text-align:center; margin-top:0;">Alumnos por Curso</h3>
+                    <canvas id="chartAlumnos"></canvas>
+                </div>
+                
+                <div class="chart-container" style="background: var(--card-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px var(--shadow-color);">
+                    <h3 style="text-align:center; margin-top:0;">Asistencia Media (%)</h3>
+                    <canvas id="chartAsistencia"></canvas>
+                </div>
+            </div>
+        </div>
+    <?php else: ?>
+        <div class="card-resumen">
+            <h2>Estadísticas académicas</h2>
+            <p style="color:var(--text-muted);">Selecciona una asignatura para ver tu rendimiento.</p>
+        </div>
+
+        <div id="loading_stats" class="loading-indicator">Cargando estadísticas...</div>
+    <?php endif; ?>
+
+    <?php if ($rol_usuario === 'profesor'): ?>
+        <script>const esProfesor = true;</script>
+    <?php else: ?>
+        <script>const esProfesor = false;</script>
+    <?php endif; ?>
+
+    <div id="stats_container" style="display: none;">
+
+        <!-- SELECTOR DE CURSO Y ASIGNATURA -->
+        <div class="card-resumen" style="margin-bottom: 25px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+            <div id="curso_selector_wrapper" style="display:none;">
+                <label for="stats_curso_select" style="font-weight:600; margin-right:10px; color:var(--text-color);">Curso:</label>
+                <select id="stats_curso_select" onchange="filtrarAsignaturasPorCurso()" style="padding:10px 15px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:1em; min-width:200px; cursor:pointer;">
+                    <option value="">-- Todos los cursos --</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="stats_asig_select" style="font-weight:600; margin-right:10px; color:var(--text-color);">Asignatura:</label>
+                <select id="stats_asig_select" onchange="actualizarRoscos()" style="padding:10px 15px; border-radius:8px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); font-size:1em; min-width:250px; cursor:pointer;">
+                    <option value="">-- Selecciona asignatura --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ROSCOS -->
+        <div id="roscos_wrapper" style="display:none;">
+            <div class="roscos-grid">
+
+                <!-- ROSCO NOTAS -->
+                <div class="rosco-card">
+                    <h3>Nota media</h3>
+                    <div class="rosco-container">
+                        <div class="rosco" id="rosco_notas">
+                            <div class="rosco-inner">
+                                <span class="rosco-valor" id="rosco_notas_valor">-</span>
+                                <span class="rosco-label">sobre 10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rosco-detalle" id="rosco_notas_detalle"></div>
+                </div>
+
+                <!-- ROSCO ASISTENCIA -->
+                <div class="rosco-card">
+                    <h3 id="asistencia_titulo">Asistencia</h3>
+                    <div class="rosco-container">
+                        <div class="rosco" id="rosco_asistencia">
+                            <div class="rosco-inner">
+                                <span class="rosco-valor" id="rosco_asistencia_valor">-</span>
+                                <span class="rosco-label" id="asistencia_label">asistencia</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rosco-detalle" id="rosco_asistencia_detalle"></div>
+                </div>
+
+            </div>
+
+            <!-- Gráfico Dinámico (Profesor/Alumno) -->
+            <div id="chart_detalles_wrapper" class="card-resumen" style="margin-top: 30px; display: none;">
+                <h3 id="chart_detalles_titulo" style="text-align:center;">Detalle de Notas</h3>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="chartDetalles"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENSAJE INICIAL -->
+        <div id="stats_placeholder" class="card-resumen" style="text-align:center; padding:40px; color:var(--text-muted);">
+            <p style="font-size:1.1em;">Elige una asignatura del desplegable para ver tus estadísticas.</p>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .contenedor-datos {
+        padding: 30px;
+    }
+    .card-resumen {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 25px;
+    }
+    .card-resumen h2 {
+        margin: 0 0 10px 0;
+        font-size: 1.5em;
+        color: var(--text-color);
+    }
+    .roscos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+    @media (max-width: 700px) {
+        .roscos-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .rosco-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 30px 20px;
+        text-align: center;
+    }
+    .rosco-card h3 {
+        margin: 0 0 20px 0;
+        font-size: 1.1em;
+        color: var(--text-color);
+    }
+
+    .rosco-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .rosco {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: conic-gradient(#e0e0e0 0% 100%);
+        transition: background 0.6s ease;
+        position: relative;
+    }
+
+    .rosco-inner {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .rosco-valor {
+        font-size: 2.4em;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--text-color);
+    }
+    .rosco-label {
+        font-size: 0.8em;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    .rosco-detalle {
+        font-size: 0.88em;
+        color: var(--text-muted);
+        line-height: 1.7;
+    }
+    .rosco-detalle span.tag-eval {
+        display: inline-block;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 3px 10px;
+        margin: 3px 4px;
+        font-weight: 600;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let datosNotas = null;
     let datosAsistencias = null;
     let chartInstancia = null;
 
@@ -38,22 +284,22 @@ let datosNotas = null;
         if (esAdmin) {
             fetch('acciones/admin_stats.php')
             .then(r => r.ok ? r.json() : null)
-            .then(datos => {
+            .then(data => {
                 document.getElementById('loading_stats').style.display = 'none';
-                if (!datos) return;
+                if (!data) return;
                 
                 document.getElementById('admin_stats_container').style.display = 'block';
-                document.getElementById('admin_alumnos').innerText = datos.total_alumnos || 0;
-                document.getElementById('admin_profes').innerText = datos.total_profesores || 0;
-                document.getElementById('admin_cursos').innerText = datos.total_cursos || 0;
+                document.getElementById('admin_alumnos').innerText = data.total_alumnos || 0;
+                document.getElementById('admin_profes').innerText = data.total_profesores || 0;
+                document.getElementById('admin_cursos').innerText = data.total_cursos || 0;
                 
                 // Gráfico 1: Usuarios (Donut)
                 new Chart(document.getElementById('chartUsuarios'), {
                     type: 'doughnut',
-                    datos: {
+                    data: {
                         labels: ['Alumnos', 'Profesores'],
                         datasets: [{
-                            datos: [datos.total_alumnos || 0, datos.total_profesores || 0],
+                            data: [data.total_alumnos || 0, data.total_profesores || 0],
                             backgroundColor: ['#3498db', '#e74c3c'],
                             borderWidth: 0
                         }]
@@ -62,14 +308,14 @@ let datosNotas = null;
                 });
 
                 // Gráfico 2: Alumnos por curso (Barras)
-                if (datos.alumnos_por_curso) {
+                if (data.alumnos_por_curso) {
                     new Chart(document.getElementById('chartAlumnos'), {
                         type: 'bar',
-                        datos: {
-                            labels: datos.alumnos_por_curso.map(c => c.curso),
+                        data: {
+                            labels: data.alumnos_por_curso.map(c => c.curso),
                             datasets: [{
                                 label: 'Alumnos Matriculados',
-                                datos: datos.alumnos_por_curso.map(c => c.cantidad),
+                                data: data.alumnos_por_curso.map(c => c.cantidad),
                                 backgroundColor: 'rgba(52, 152, 219, 0.7)',
                                 borderColor: '#3498db',
                                 borderWidth: 1
@@ -87,15 +333,15 @@ let datosNotas = null;
                 }
 
                 // Gráfico 3: Asistencia Media (Barras horizontales)
-                if (datos.asistencia_por_curso) {
+                if (data.asistencia_por_curso) {
                     new Chart(document.getElementById('chartAsistencia'), {
                         type: 'bar',
-                        datos: {
-                            labels: datos.asistencia_por_curso.map(c => c.curso),
+                        data: {
+                            labels: data.asistencia_por_curso.map(c => c.curso),
                             datasets: [{
                                 label: '% Asistencia Media',
-                                datos: datos.asistencia_por_curso.map(c => c.porcentaje),
-                                backgroundColor: datos.asistencia_por_curso.map(c => getColorAsistencia(c.porcentaje)),
+                                data: data.asistencia_por_curso.map(c => c.porcentaje),
+                                backgroundColor: data.asistencia_por_curso.map(c => getColorAsistencia(c.porcentaje)),
                                 borderWidth: 0
                             }]
                         },
@@ -115,21 +361,21 @@ let datosNotas = null;
                 console.error(err);
                 document.getElementById('loading_stats').innerHTML = '<div style="color:var(--danger-color)">Error al cargar estadísticas.</div>';
             });
-        } else if (window.EnjoyfeConfig.esProfesor) {
+        } else if (esProfesor) {
             fetch('acciones/estadisticas_profesor.php')
             .then(r => r.ok ? r.json() : null)
-            .then(datos => {
-                datosNotas = datos; // Usaremos esto para guardar la info del profesor
+            .then(data => {
+                datosNotas = data; // Usaremos esto para guardar la info del profesor
                 
                 document.getElementById('loading_stats').style.display = 'none';
                 document.getElementById('stats_container').style.display = 'block';
 
                 const select = document.getElementById('stats_asig_select');
-                if (datos && datos.length > 0) {
+                if (data && data.length > 0) {
                     document.getElementById('curso_selector_wrapper').style.display = 'block';
                     const cursoSelect = document.getElementById('stats_curso_select');
                     const cursosMap = new Map();
-                    datos.forEach(a => {
+                    data.forEach(a => {
                         if (a.id_curso && a.nombre_curso) {
                             cursosMap.set(a.id_curso, a.nombre_curso);
                         }
@@ -180,7 +426,7 @@ let datosNotas = null;
     }
 
     function filtrarAsignaturasPorCurso() {
-        if (!window.EnjoyfeConfig.esProfesor) return;
+        if (!esProfesor) return;
         
         const idCurso = document.getElementById('stats_curso_select').value;
         const selectAsig = document.getElementById('stats_asig_select');
@@ -211,7 +457,7 @@ let datosNotas = null;
         document.getElementById('stats_placeholder').style.display = 'none';
         document.getElementById('roscos_wrapper').style.display = 'block';
 
-        if (window.EnjoyfeConfig.esProfesor) {
+        if (esProfesor) {
             // asigVal es id_asignatura
             const asig = datosNotas.find(a => String(a.id_asignatura) === String(asigVal));
             if (!asig) return;
@@ -249,11 +495,11 @@ let datosNotas = null;
                 const dist = asig.distribucion_notas;
                 chartInstancia = new Chart(document.getElementById('chartDetalles'), {
                     type: 'bar',
-                    datos: {
+                    data: {
                         labels: ['Suspenso', 'Suficiente', 'Bien', 'Notable', 'Sobresaliente'],
                         datasets: [{
                             label: 'Nº Alumnos',
-                            datos: [dist.Suspenso, dist.Suficiente, dist.Bien, dist.Notable, dist.Sobresaliente],
+                            data: [dist.Suspenso, dist.Suficiente, dist.Bien, dist.Notable, dist.Sobresaliente],
                             backgroundColor: [
                                 'rgba(231, 76, 60, 0.7)',
                                 'rgba(241, 196, 15, 0.7)',
@@ -369,11 +615,11 @@ let datosNotas = null;
             
             chartInstancia = new Chart(document.getElementById('chartDetalles'), {
                 type: 'line',
-                datos: {
+                data: {
                     labels: ['1ª Evaluación', '2ª Evaluación', '3ª Evaluación'],
                     datasets: [{
                         label: 'Nota Media',
-                        datos: evalData,
+                        data: evalData,
                         borderColor: '#3498db',
                         backgroundColor: 'rgba(52, 152, 219, 0.2)',
                         pointBackgroundColor: '#3498db',
@@ -396,3 +642,10 @@ let datosNotas = null;
     }
 
     cargarEstadisticas();
+</script>
+
+</div>
+</div>
+<?php include __DIR__ . '/../componentes/footer.php'; ?>
+</body>
+</html>

@@ -154,7 +154,7 @@ const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "
             e.preventDefault();
             const id = document.getElementById("editIdInput").value;
             const url = id !== "" ? "acciones/editar_evento.php" : "acciones/guardar_evento.php";
-            const data = {
+            const datos = {
                 id: id,
                 titulo: document.getElementById("tituloInput").value,
                 fecha: document.getElementById("fechaInput").value,
@@ -163,20 +163,20 @@ const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "
             };
             const cursoInput = document.getElementById("cursoInput");
             if (cursoInput && cursoInput.value) {
-                data.id_curso = cursoInput.value;
+                datos.id_curso = cursoInput.value;
             }
             const descInput = document.getElementById("descInput");
             if (descInput && descInput.value) {
-                data.descripcion = descInput.value;
+                datos.descripcion = descInput.value;
             }
 
-            fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+            fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) })
             .then(() => window.location.reload());
         }
         function actualizarEstadosAnunciosDashboard() {
             let readNotifs = JSON.parse(localStorage.getItem('read_notifications') || '[]');
             document.querySelectorAll('.evento-item.anuncio').forEach(el => {
-                const id = el.getAttribute('data-id');
+                const id = el.getAttribute('datos-id');
                 const notifId = `ann_${id}`;
                 const estadoEl = document.getElementById(`anuncio_estado_${id}`);
                 if (estadoEl) {
@@ -192,10 +192,10 @@ const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "
         }
 
         function verDetalleAnuncioDashboard(element) {
-            const id = element.getAttribute('data-id');
-            const titulo = element.getAttribute('data-titulo');
-            const descripcion = element.getAttribute('data-descripcion');
-            const fecha = element.getAttribute('data-fecha');
+            const id = element.getAttribute('datos-id');
+            const titulo = element.getAttribute('datos-titulo');
+            const descripcion = element.getAttribute('datos-descripcion');
+            const fecha = element.getAttribute('datos-fecha');
             
             if (typeof marcarComoLeida === 'function') {
                 marcarComoLeida(`ann_${id}`);

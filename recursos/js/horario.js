@@ -14,7 +14,7 @@
     // Función para obtener estilos de color
     function getSubjectStyle(match) {
         let bg, text, border;
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const isDark = document.documentElement.getAttribute('datos-theme') === 'dark';
 
         if (match.color && match.color !== '#3498db' && match.color !== '') {
             // Usa el color de la base de datos si fue personalizado
@@ -45,27 +45,27 @@
         const url = idCurso ? `acciones/mi_horario.php?id_curso=${idCurso}` : 'acciones/mi_horario.php';
 
         fetch(url)
-        .then(response => {
-            if (response.status === 200) return response.json();
+        .then(respuesta => {
+            if (respuesta.status === 200) return respuesta.json();
             throw new Error('Error al cargar');
         })
-        .then(data => {
+        .then(datos => {
             // Actualizar Cabecera
-            if (data.rol === 'profesor') {
+            if (datos.rol === 'profesor') {
                 document.getElementById('horario_grupo_nombre').innerHTML = "Mi horario docente";
             } else {
-                document.getElementById('horario_grupo_nombre').innerHTML = `Horario - ${data.curso_nombre} <span style="font-size: 0.6em; color: var(--text-muted); margin-left: 15px; font-weight: normal; vertical-align: middle;">Tutor: <strong>${data.tutor_nombre || 'Sin asignar'}</strong></span>`;
+                document.getElementById('horario_grupo_nombre').innerHTML = `Horario - ${datos.curso_nombre} <span style="font-size: 0.6em; color: var(--text-muted); margin-left: 15px; font-weight: normal; vertical-align: middle;">Tutor: <strong>${datos.tutor_nombre || 'Sin asignar'}</strong></span>`;
             }
 
             // Si es administrador o profesor, pintar el selector de cursos (si no está pintado)
-            if ((data.rol === 'admin' || data.rol === 'profesor') && data.cursos_disponibles && data.cursos_disponibles.length > 0) {
+            if ((datos.rol === 'admin' || datos.rol === 'profesor') && datos.cursos_disponibles && datos.cursos_disponibles.length > 0) {
                 const selectorContainer = document.getElementById('admin_selector_container');
                 const select = document.getElementById('curso_select');
                 
                 if (selectorContainer.style.display === 'none') {
                     selectorContainer.style.display = 'flex';
-                    select.innerHTML = data.cursos_disponibles.map(c => `
-                        <option value="${c.id}" ${data.curso_nombre === c.nombre ? 'selected' : ''}>${c.nombre}</option>
+                    select.innerHTML = datos.cursos_disponibles.map(c => `
+                        <option value="${c.id}" ${datos.curso_nombre === c.nombre ? 'selected' : ''}>${c.nombre}</option>
                     `).join('');
                 }
             }
@@ -107,7 +107,7 @@
                     // Celdas para cada día de la semana (1 = Lunes a 5 = Viernes)
                     for (let day = 1; day <= 5; day++) {
                         // Buscar si coincide alguna asignatura en este día y tramo
-                        const match = data.horarios.find(h => h.dia_semana === day && h.hora_inicio === slot.start);
+                        const match = datos.horarios.find(h => h.dia_semana === day && h.hora_inicio === slot.start);
                         
                         const dayCell = document.createElement('div');
                         dayCell.className = "grid-cell";
@@ -120,7 +120,7 @@
                         if (match) {
                             const style = getSubjectStyle(match);
                             // Si es profesor, además del nombre de asignatura enseñamos a qué curso pertenece
-                            const detailSubtext = data.rol === 'profesor' 
+                            const detailSubtext = datos.rol === 'profesor' 
                                 ? `<span class="asig-curso">${escapeHtml(match.curso)}</span>` 
                                 : `<span class="asig-prof">${escapeHtml(match.profesor)}</span>`;
 

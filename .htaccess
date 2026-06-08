@@ -1,1 +1,13 @@
 ErrorDocument 404 /enjoyfe_web/404.php
+
+RewriteEngine On
+
+# Si la petición es para la raíz, sirve index.php (el login)
+RewriteRule ^$ index.php [L]
+
+# Si el archivo NO existe físicamente en la raíz ni es un directorio
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Reescribe la petición buscando el archivo .php en la carpeta vistas/
+RewriteRule ^(.*\.php)$ vistas/$1 [L]

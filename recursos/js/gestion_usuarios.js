@@ -53,7 +53,7 @@ const modal = document.getElementById("modalUsuario");
             const isEdit = id !== "";
             const url = isEdit ? `acciones/admin_editar_usuario.php?id=${id}` : `acciones/admin_crear_usuario.php`;
             
-            const data = {
+            const datos = {
                 nombre_usuario: document.getElementById("nombreUsuarioInput").value,
                 nombre_completo: document.getElementById("nombreCompletoInput").value,
                 dni: document.getElementById("dniInput").value,
@@ -65,15 +65,15 @@ const modal = document.getElementById("modalUsuario");
             fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
+                body: JSON.stringify(datos)
             })
             .then(res => res.json())
-            .then(data => {
-                if (data.exito) {
+            .then(datos => {
+                if (datos.exito) {
                     window.location.reload();
                 } else {
                     cerrarModal();
-                    mostrarMensaje(data.mensaje || "Ocurrió un error", true);
+                    mostrarMensaje(datos.mensaje || "Ocurrió un error", true);
                 }
             })
             .catch(err => {
@@ -89,11 +89,11 @@ const modal = document.getElementById("modalUsuario");
                 function() {
                     fetch(`acciones/admin_borrar_usuario.php?id=${id}`, { method: 'GET' })
                     .then(res => res.json())
-                    .then(data => {
-                        if (data.exito) {
+                    .then(datos => {
+                        if (datos.exito) {
                             window.location.reload();
                         } else {
-                            mostrarMensaje(data.mensaje || "Error al eliminar", true);
+                            mostrarMensaje(datos.mensaje || "Error al eliminar", true);
                         }
                     })
                     .catch(() => mostrarMensaje("Error de conexión", true));

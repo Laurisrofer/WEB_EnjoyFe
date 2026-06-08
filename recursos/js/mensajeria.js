@@ -13,21 +13,21 @@ let mensajesCache = [];
         const listaCont = document.getElementById('lista_mensajes');
         
         fetch('acciones/gestion_mensajes.php?action=obtener')
-        .then(response => {
-            if (response.ok) return response.json();
+        .then(respuesta => {
+            if (respuesta.ok) return respuesta.json();
             throw new Error('Error al cargar la bandeja');
         })
-        .then(data => {
-            mensajesCache = data;
+        .then(datos => {
+            mensajesCache = datos;
             
-            if (data.length === 0) {
+            if (datos.length === 0) {
                 listaCont.innerHTML = '<div class="estado-lista-vacio">No tienes mensajes en tu bandeja de entrada.</div>';
                 return;
             }
             
             let readNotifs = JSON.parse(localStorage.getItem('read_notifications') || '[]');
             
-            listaCont.innerHTML = data.map(msg => {
+            listaCont.innerHTML = datos.map(msg => {
                 const isUnread = !readNotifs.includes(`msg_${msg.id}`);
                 const unreadClass = isUnread ? 'no-leido' : '';
                 const inicial = msg.de.charAt(0).toUpperCase();
@@ -59,14 +59,14 @@ let mensajesCache = [];
     // Cargar la agenda de contactos y renderizar buscador
     function cargarContactos() {
         fetch('acciones/gestion_mensajes.php?action=contactos')
-        .then(response => {
-            if (response.ok) return response.json();
+        .then(respuesta => {
+            if (respuesta.ok) return respuesta.json();
             throw new Error('Error al cargar contactos');
         })
-        .then(data => {
+        .then(datos => {
             // Filtrar para no escribirnos a nosotros mismos
             const miUsuario = window.EnjoyfeConfig.nombreUsuario;
-            contactosCache = data.filter(c => c.nombre_usuario !== miUsuario);
+            contactosCache = datos.filter(c => c.nombre_usuario !== miUsuario);
         })
         .catch(err => console.error('Error al cargar contactos:', err));
     }
@@ -243,11 +243,11 @@ let mensajesCache = [];
                     method: 'POST',
                     body: formData
                 })
-                .then(response => {
-                    if (response.ok) return response.json();
+                .then(respuesta => {
+                    if (respuesta.ok) return respuesta.json();
                     throw new Error('Error al eliminar');
                 })
-                .then(data => {
+                .then(datos => {
                     if (typeof showToast === 'function') {
                         showToast("Mensaje eliminado correctamente", "success");
                     }
@@ -307,11 +307,11 @@ let mensajesCache = [];
             method: 'POST',
             body: formData
         })
-        .then(response => {
-            if (response.ok) return response.json();
-            return response.json().then(err => { throw new Error(err.mensaje || 'Error al enviar'); });
+        .then(respuesta => {
+            if (respuesta.ok) return respuesta.json();
+            return respuesta.json().then(err => { throw new Error(err.mensaje || 'Error al enviar'); });
         })
-        .then(data => {
+        .then(datos => {
             // Mostrar mensaje de éxito temporal
             alertBox.className = 'banner-alerta exito';
             alertBox.innerText = "¡Mensaje enviado con éxito!";
