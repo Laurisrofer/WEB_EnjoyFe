@@ -71,8 +71,8 @@ include __DIR__ . '/../componentes/header.php';
         <div id="editor_notas_container" style="display: none;">
             <!-- Tabs para alternar flujos de trabajo -->
             <div class="tab-nav">
-                <button class="tab-link active" onclick="switchTab('tab_alumno')">👤 Calificar por alumno</button>
-                <button class="tab-link" onclick="switchTab('tab_actividad')">📝 Calificar por actividad</button>
+                <button class="tab-link active" onclick="switchTab('tab_alumno')">Calificar por alumno</button>
+                <button class="tab-link" onclick="switchTab('tab_actividad')">Calificar por actividad</button>
             </div>
 
             <!-- PESTAÑA 1: CALIFICAR POR ALUMNO -->

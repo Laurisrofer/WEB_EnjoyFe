@@ -176,7 +176,7 @@ const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "
         function actualizarEstadosAnunciosDashboard() {
             let readNotifs = JSON.parse(localStorage.getItem('read_notifications') || '[]');
             document.querySelectorAll('.evento-item.anuncio').forEach(el => {
-                const id = el.getAttribute('datos-id');
+                const id = el.getAttribute('data-id');
                 const notifId = `ann_${id}`;
                 const estadoEl = document.getElementById(`anuncio_estado_${id}`);
                 if (estadoEl) {
@@ -192,10 +192,10 @@ const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "
         }
 
         function verDetalleAnuncioDashboard(element) {
-            const id = element.getAttribute('datos-id');
-            const titulo = element.getAttribute('datos-titulo');
-            const descripcion = element.getAttribute('datos-descripcion');
-            const fecha = element.getAttribute('datos-fecha');
+            const id = element.getAttribute('data-id');
+            const titulo = element.getAttribute('data-titulo');
+            const descripcion = element.getAttribute('data-descripcion');
+            const fecha = element.getAttribute('data-fecha');
             
             if (typeof marcarComoLeida === 'function') {
                 marcarComoLeida(`ann_${id}`);

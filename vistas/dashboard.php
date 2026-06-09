@@ -248,7 +248,7 @@ include __DIR__ . '/../componentes/header.php';
     window.EnjoyfeConfig = window.EnjoyfeConfig || {};
     window.EnjoyfeConfig.esAdmin = <?php echo ($es_admin) ? 'true' : 'false'; ?>;
 </script>
-<script src="recursos/js/dashboard.js"></script>
+<script src="recursos/js/dashboard.js?v=<?php echo time(); ?>"></script>
 
     <?php include __DIR__ . '/../componentes/footer.php'; ?>
 </body>

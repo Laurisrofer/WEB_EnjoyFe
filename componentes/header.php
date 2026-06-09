@@ -11,12 +11,15 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
     <link rel="stylesheet" href="recursos/estilos.css?v=1.3">
     
     <script>
+        const currentUserHead = '<?php echo htmlspecialchars($_SESSION["nombre_usuario"] ?? "default", ENT_QUOTES, "UTF-8"); ?>';
+        const getLocalKeyHead = (baseKey) => baseKey + '_' + currentUserHead;
+
         // Aplicar tema oscuro inmediatamente antes de pintar para evitar destello blanco
-        const storedTheme = localStorage.getItem('theme') || 'light';
+        const storedTheme = localStorage.getItem(getLocalKeyHead('theme')) || 'light';
         document.documentElement.setAttribute('data-theme', storedTheme);
         
         // Aplicar clase de accesibilidad para tamaño de fuente al cargar el DOM sin pisar el rol
-        const storedFontSize = localStorage.getItem('fontSize') || 'medium';
+        const storedFontSize = localStorage.getItem(getLocalKeyHead('fontSize')) || 'medium';
         document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('font-' + storedFontSize);
         });
@@ -331,10 +334,10 @@ $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'alumno';
 
         function checkNotifications() {
             // Cargar preferencias de localStorage (por defecto true si no existen)
-            const notifNotesEnabled = localStorage.getItem('notif_notes') !== 'false';
-            const notifMsgEnabled = localStorage.getItem('notif_msg') !== 'false';
-            const notifAttendanceEnabled = localStorage.getItem('notif_attendance') !== 'false';
-            const notifAnunciosEnabled = localStorage.getItem('notif_anuncios') !== 'false';
+            const notifNotesEnabled = localStorage.getItem(getLocalKey('notif_notes')) !== 'false';
+            const notifMsgEnabled = localStorage.getItem(getLocalKey('notif_msg')) !== 'false';
+            const notifAttendanceEnabled = localStorage.getItem(getLocalKey('notif_attendance')) !== 'false';
+            const notifAnunciosEnabled = localStorage.getItem(getLocalKey('notif_anuncios')) !== 'false';
 
             fetch('acciones/notificaciones.php')
             .then(response => {

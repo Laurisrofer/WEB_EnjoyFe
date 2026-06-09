@@ -114,43 +114,44 @@ include __DIR__ . '/../componentes/header.php';
     // Inicializar controles basados en localStorage al cargar la página
     document.addEventListener("DOMContentLoaded", () => {
         // 1. Tema oscuro
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const currentTheme = localStorage.getItem(getLocalKey('theme')) || 'light';
         document.getElementById('theme_toggle').checked = (currentTheme === 'dark');
 
         // 2. Tamaño de fuente
-        const currentFontSize = localStorage.getItem('fontSize') || 'medium';
+        const currentFontSize = localStorage.getItem(getLocalKey('fontSize')) || 'medium';
         document.getElementById('fontsize_select').value = currentFontSize;
 
         // 3. Preferencias de Notificaciones (Por defecto true)
-        <?php if ($_SESSION['rol'] !== 'profesor'): ?>
-        const notesEnabled = localStorage.getItem('notif_notes') !== 'false';
-        document.getElementById('notif_notes_toggle').checked = notesEnabled;
+        <?php if ($_SESSION['rol'] !== 'profesor' && $_SESSION['rol'] !== 'admin'): ?>
+        const notesEnabled = localStorage.getItem(getLocalKey('notif_notes')) !== 'false';
+        if(document.getElementById('notif_notes_toggle')) document.getElementById('notif_notes_toggle').checked = notesEnabled;
         <?php endif; ?>
-        const msgEnabled = localStorage.getItem('notif_msg') !== 'false';
-        const attendanceEnabled = localStorage.getItem('notif_attendance') !== 'false';
-        const anunciosEnabled = localStorage.getItem('notif_anuncios') !== 'false';
-        document.getElementById('notif_msg_toggle').checked = msgEnabled;
-        document.getElementById('notif_attendance_toggle').checked = attendanceEnabled;
-        document.getElementById('notif_anuncios_toggle').checked = anunciosEnabled;
+        const msgEnabled = localStorage.getItem(getLocalKey('notif_msg')) !== 'false';
+        const attendanceEnabled = localStorage.getItem(getLocalKey('notif_attendance')) !== 'false';
+        const anunciosEnabled = localStorage.getItem(getLocalKey('notif_anuncios')) !== 'false';
+        if(document.getElementById('notif_msg_toggle')) document.getElementById('notif_msg_toggle').checked = msgEnabled;
+        if(document.getElementById('notif_attendance_toggle')) document.getElementById('notif_attendance_toggle').checked = attendanceEnabled;
+        if(document.getElementById('notif_anuncios_toggle')) document.getElementById('notif_anuncios_toggle').checked = anunciosEnabled;
     });
 
     // Cambiar Tema
     function toggleTheme(checkbox) {
         const theme = checkbox.checked ? 'dark' : 'light';
-        localStorage.setItem('theme', theme);
+        localStorage.setItem(getLocalKey('theme'), theme);
         document.documentElement.setAttribute('data-theme', theme);
     }
 
     // Cambiar Tamaño de Letra
     function changeFontSize(value) {
-        localStorage.setItem('fontSize', value);
+        localStorage.setItem(getLocalKey('fontSize'), value);
         document.body.classList.remove('font-small', 'font-medium', 'font-large');
         document.body.classList.add('font-' + value);
     }
 
     // Guardar otras preferencias
     function togglePreference(key, value) {
-        localStorage.setItem(key, value);
+        localStorage.setItem(getLocalKey(key), value);
+        if (typeof checkNotifications === 'function') checkNotifications();
     }
 
     // Generar logs simulados de accesos

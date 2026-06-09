@@ -173,7 +173,7 @@ include __DIR__ . '/../componentes/header.php';
 
                 <div class="form-group">
                     <label>Guía Docente</label>
-                    <div id="editor-container" style="height: 150px; background: white; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;"></div>
+                    <div id="editor-container" style="height: 150px; background: white; color: #121212; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; border: 1px solid var(--border-color);"></div>
                     <input type="hidden" id="guiaInput">
                 </div>
 
