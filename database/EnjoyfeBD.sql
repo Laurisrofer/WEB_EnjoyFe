@@ -17,24 +17,7 @@ CREATE TABLE usuarios (
     primer_inicio TINYINT DEFAULT 1
 );
 
--- 3. TABLA HISTÓRICO DE USUARIOS
-CREATE TABLE usuarios_historico (
-    id_historico INT AUTO_INCREMENT PRIMARY KEY,
-    id_original INT NOT NULL,
-    nombre_usuario VARCHAR(50),
-    rol VARCHAR(20),
-    email VARCHAR(100),
-    fecha_borrado DATETIME DEFAULT CURRENT_TIMESTAMP
-);
 
--- 4. TABLA LOGS DE ACCESO
-CREATE TABLE logs_acceso (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
-    accion VARCHAR(255) DEFAULT 'Inicio de sesión',
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
-);
 
 -- 5. TABLA CURSOS
 CREATE TABLE cursos (

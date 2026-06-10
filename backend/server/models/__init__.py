@@ -1,7 +1,5 @@
 # server/models/__init__.py
 from .Usuario import Usuario
-from .UsuarioHistorico import UsuarioHistorico
-from .LogAcceso import LogAcceso
 from .Curso import Curso
 from .Asignatura import Asignatura
 from .Matricula import Matricula
